@@ -1,10 +1,15 @@
 package api.security.training;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
-import api.security.training.handler.ClientRegistrationHandler;
+import api.security.training.api.dto.RegisterClientRequest;
+import api.security.training.api.handler.ClientRegistrationHandler;
+import api.security.training.registration.impl.ClientSecretSupplierImpl;
+import api.security.training.validation.ValidatingBodyHandler;
+import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
 import io.javalin.Javalin;
 import io.javalin.vue.VueComponent;
 import io.r2dbc.spi.ConnectionFactories;
@@ -41,7 +46,12 @@ public class AuthServerMain {
 		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
 		app.get("/", new VueComponent("hello-world"));
-		app.post("/clients", new ClientRegistrationHandler(validator, entityTemplate));
+		app.post("/clients", new ValidatingBodyHandler<>(
+				validator,
+				new SimpleErrorsListValidationErrorResponseFactory(),
+				new ClientRegistrationHandler(entityTemplate, UUID::randomUUID, new ClientSecretSupplierImpl()),
+				RegisterClientRequest.class
+		));
 
 		app.start(7000);
 

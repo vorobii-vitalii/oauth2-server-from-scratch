@@ -1,4 +1,4 @@
-package api.security.training.api.domain;
+package api.security.training.domain;
 
 import java.util.UUID;
 

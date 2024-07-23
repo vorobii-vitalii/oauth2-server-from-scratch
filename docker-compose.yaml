@@ -1,0 +1,38 @@
+version: "3.1"
+services:
+
+  postgres:
+    image: 'postgres:latest'
+    command: ["postgres", "-c", "log_statement=all"]
+    networks:
+      net:
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d mydatabase -U myuser " ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_PASSWORD=secret'
+    ports:
+      - '5432:5432'
+
+  liquibase:
+    image: 'liquibase:4.28.0.1'
+    networks:
+      net:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./liquibase/liquibase.properties:/liquibase.properties
+      - ./liquibase/changelog.sql:/liquibase/changelog.sql
+    command: --defaults-file=/liquibase.properties update
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/mydatabase
+      LIQUIBASE_COMMAND_USERNAME: myuser
+      LIQUIBASE_COMMAND_PASSWORD: secret
+
+networks:
+  net:

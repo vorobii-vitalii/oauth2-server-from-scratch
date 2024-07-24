@@ -1,4 +1,4 @@
-package api.security.training.registration;
+package api.security.training.client_registration;
 
 import java.util.UUID;
 

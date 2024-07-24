@@ -6,8 +6,11 @@ import java.util.UUID;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
 import api.security.training.api.dto.RegisterClientRequest;
-import api.security.training.api.handler.ClientRegistrationHandler;
-import api.security.training.registration.impl.ClientSecretSupplierImpl;
+import api.security.training.client_registration.handler.ClientRegistrationHandler;
+import api.security.training.client_registration.ClientSecretSupplierImpl;
+import api.security.training.users.password.impl.NaivePasswordService;
+import api.security.training.users.registration.dto.UserRegistrationRequest;
+import api.security.training.users.registration.handler.UserRegistrationHandler;
 import api.security.training.validation.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
 import io.javalin.Javalin;
@@ -52,6 +55,12 @@ public class AuthServerMain {
 				new ClientRegistrationHandler(entityTemplate, UUID::randomUUID, new ClientSecretSupplierImpl()),
 				RegisterClientRequest.class
 		));
+		app.post("/users", new ValidatingBodyHandler<>(
+				validator,
+				new SimpleErrorsListValidationErrorResponseFactory(),
+				new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID),
+				UserRegistrationRequest.class
+		));
 
 		app.start(7000);
 
@@ -64,10 +73,6 @@ public class AuthServerMain {
 				log.info("Server stopped");
 			});
 		});
-	}
-
-	private static <T> Mono<Optional<T>> toOptionalMono(Mono<T> mono) {
-		return mono.map(Optional::ofNullable).switchIfEmpty(Mono.just(Optional.empty()));
 	}
 
 }

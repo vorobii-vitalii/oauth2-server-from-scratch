@@ -22,4 +22,25 @@ comment on column client_registrations.client_description IS 'Description of OAu
 
 --rollback DROP TABLE client_registrations;
 
+--changeset Vitalii:2 context:auth-server
+--comment: Create table that stores registered users
+create table users
+(
+    user_id      uuid not null,
+    username varchar(255) not null,
+    first_name varchar(100) not null,
+    last_name varchar(100) not null,
+    phone_number varchar(30) not null,
+    password varchar(300) not null,
+    primary key (user_id)
+);
+comment on table users IS 'Registered users';
+comment on column users.user_id IS 'ID of user';
+comment on column users.username IS 'Username';
+comment on column users.first_name IS 'First name';
+comment on column users.last_name IS 'Last name';
+comment on column users.phone_number IS 'Phone number';
+comment on column users.password IS 'Encrypted password';
+
+--rollback DROP TABLE users;
 

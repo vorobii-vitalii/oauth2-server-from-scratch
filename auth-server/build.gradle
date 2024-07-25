@@ -34,8 +34,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    implementation 'org.webjars.npm:vue:3.4.33'
-
     // Cryptography
     implementation 'org.jasypt:jasypt:1.9.3'
 
@@ -48,18 +46,15 @@ dependencies {
     // https://mvnrepository.com/artifact/jakarta.el/jakarta.el-api
     implementation 'jakarta.el:jakarta.el-api:6.0.1'
     implementation 'org.glassfish.expressly:expressly:5.0.0'
+
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    implementation 'gg.jte:jte:2.2.1'
+    implementation 'io.javalin:javalin-rendering:6.1.3'
 }
 
 test {
     useJUnitPlatform()
 }
-
-//openApiGenerate {
-//    generatorName.set("java")
-//    inputSpec.set("$rootDir/openapi-specs.yaml")
-//    outputDir.set("$buildDir/generated")
-//    apiPackage.set("api.security.training.api")
-//    invokerPackage.set("api.security.training.invoker")
-//    modelPackage.set("api.security.training.model")
-//    configOptions.put("dateLibrary", "java8")
-//}

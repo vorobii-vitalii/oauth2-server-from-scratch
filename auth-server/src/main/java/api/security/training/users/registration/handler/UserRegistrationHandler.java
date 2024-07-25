@@ -68,7 +68,7 @@ public class UserRegistrationHandler implements Handler {
 	}
 
 	private @NotNull Query queryByUsername(String username) {
-		return query(where(User.USER_ID).is(username));
+		return query(where(User.USERNAME).is(username));
 	}
 
 }

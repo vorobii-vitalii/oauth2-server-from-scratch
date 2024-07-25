@@ -20,12 +20,16 @@ public class UserAuthenticationFilter implements Handler {
 	public void handle(@NotNull Context ctx) throws Exception {
 		var sessionToken = ctx.cookie(SESSION_COOKIE);
 		if (sessionToken == null) {
+			log.warn("Session cookie absent");
 			handlerOnAuthenticationFailure.handle(ctx);
 			return;
 		}
 		var tokenInfo = tokenInfoReader.readTokenInfo(sessionToken);
 		if (tokenInfo.isExpired()) {
+			log.warn("Session cookie expired!");
 			handlerOnAuthenticationFailure.handle(ctx);
+		} else {
+			log.info("Session cookie not expired yet...");
 		}
 	}
 }

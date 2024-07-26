@@ -21,6 +21,7 @@
       });
       console.log("Login response call is successful");
       console.log(loginResponse);
+      window.location.href = '${loginPageParams.getRedirectTo()}';
     }
     catch (err) {
       console.error("Error on Authorize");
@@ -28,7 +29,7 @@
     }
   }
 </script>
-<form>
+<div>
     <label for="username">
         Username:
     </label>
@@ -47,4 +48,4 @@
     <div>
         <button type="submit" onclick="performLogin()">Submit</button>
     </div>
-</form>
+</div>

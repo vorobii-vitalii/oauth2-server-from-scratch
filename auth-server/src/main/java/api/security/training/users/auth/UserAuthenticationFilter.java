@@ -1,7 +1,10 @@
 package api.security.training.users.auth;
 
+import java.util.function.Function;
+
 import org.jetbrains.annotations.NotNull;
 
+import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.token.TokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -14,20 +17,19 @@ public class UserAuthenticationFilter implements Handler {
 	private static final String SESSION_COOKIE = "Session";
 
 	private final TokenInfoReader tokenInfoReader;
-	private final Handler handlerOnAuthenticationFailure;
+	private final Function<Context, AuthenticationRequiredException> errorFactory;
 
 	@Override
 	public void handle(@NotNull Context ctx) throws Exception {
 		var sessionToken = ctx.cookie(SESSION_COOKIE);
 		if (sessionToken == null) {
 			log.warn("Session cookie absent");
-			handlerOnAuthenticationFailure.handle(ctx);
-			return;
+			throw errorFactory.apply(ctx);
 		}
 		var tokenInfo = tokenInfoReader.readTokenInfo(sessionToken);
 		if (tokenInfo.isExpired()) {
 			log.warn("Session cookie expired!");
-			handlerOnAuthenticationFailure.handle(ctx);
+			throw errorFactory.apply(ctx);
 		} else {
 			log.info("Session cookie not expired yet...");
 		}

@@ -57,11 +57,12 @@ public class LoginHandler implements Handler {
 								log.info("User found. Verifying password...");
 								var actualPasswordHash = foundUser.get().password();
 								if (passwordService.isPasswordCorrect(actualPasswordHash, userLoginRequest.password())) {
-									log.info("Password is correct! Performing redirect!");
 									var redirectURL = userLoginRequest.redirectToOnSuccess();
+									log.info("Password is correct! Performing redirect to {}!", redirectURL);
 									// Generate JWT, sign it and set in cookie. STRICT TRUE, HTTP ONLY
 									ctx.cookie("Session", tokenCreator.createToken(username, Map.of()), (int) sessionCookieExpirationMs);
-									ctx.redirect(redirectURL, HttpStatus.FOUND);
+									ctx.status(HttpStatus.OK);
+//									ctx.redirect(redirectURL, HttpStatus.FOUND);
 								} else {
 									log.warn("Password is wrong...");
 									ctx.status(HttpStatus.UNAUTHORIZED);
@@ -92,7 +93,7 @@ public class LoginHandler implements Handler {
 	}
 
 	private @NotNull Query queryUserByUsername(String username) {
-		return query(where(User.USER_ID).is(username));
+		return query(where(User.USERNAME).is(username));
 	}
 
 }

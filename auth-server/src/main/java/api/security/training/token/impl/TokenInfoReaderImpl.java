@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import api.security.training.token.TokenInfo;
 import api.security.training.token.TokenInfoReader;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
@@ -17,11 +18,16 @@ public class TokenInfoReaderImpl implements TokenInfoReader {
 
 	@Override
 	public TokenInfo readTokenInfo(String token) {
-		Claims claims = extractAllClaims(token);
-		return TokenInfo.builder()
-				.username(claims.getSubject())
-				.isExpired(claims.getExpiration().before(currentDateProvider.get()))
-				.build();
+		try {
+			Claims claims = extractAllClaims(token);
+			return TokenInfo.builder()
+					.isExpired(claims.getExpiration().before(currentDateProvider.get()))
+					.username(claims.getSubject())
+					.build();
+		}
+		catch (ExpiredJwtException error) {
+			return TokenInfo.builder().isExpired(true).build();
+		}
 	}
 
 	private Claims extractAllClaims(String token) {

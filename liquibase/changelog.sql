@@ -44,3 +44,24 @@ comment on column users.password IS 'Encrypted password';
 
 --rollback DROP TABLE users;
 
+--changeset Vitalii:3 context:auth-server
+--comment: Create table that stores authorization requests
+create table authorization_requests
+(
+    id      uuid not null,
+    username varchar(255) not null,
+    response_type varchar(100) not null,
+    client_id uuid not null,
+    scope varchar(120) not null,
+    state varchar(255),
+    primary key (id)
+);
+comment on table authorization_requests IS 'Authorization requests';
+comment on column authorization_requests.id IS 'ID of auth request';
+comment on column authorization_requests.username IS 'Expected approve user';
+comment on column authorization_requests.response_type IS 'Response type (code, token etc)';
+comment on column authorization_requests.client_id IS 'OAuth2 client';
+comment on column authorization_requests.scope IS 'Scope of authorization requests';
+comment on column authorization_requests.state IS 'State that was passed to authorization request';
+
+--rollback DROP TABLE users;

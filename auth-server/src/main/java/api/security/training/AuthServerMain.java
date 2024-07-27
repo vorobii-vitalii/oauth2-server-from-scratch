@@ -1,20 +1,21 @@
 package api.security.training;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
 import api.security.training.api.dto.RegisterClientRequest;
-import api.security.training.client_registration.handler.ClientRegistrationHandler;
+import api.security.training.authorization.handler.AuthorizationHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
+import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.exception.AuthenticationRequiredException;
+import api.security.training.token.impl.CookieRequestTokenExtractor;
 import api.security.training.token.impl.JwtTokenCreator;
 import api.security.training.token.impl.TokenInfoReaderImpl;
 import api.security.training.users.auth.UserAuthenticationFilter;
@@ -29,8 +30,6 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
-import io.javalin.http.ExceptionHandler;
 import io.javalin.http.HttpStatus;
 import io.javalin.rendering.template.JavalinJte;
 import io.jsonwebtoken.io.Decoders;
@@ -39,7 +38,6 @@ import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,11 +47,9 @@ public class AuthServerMain {
 
 	public static void main(String[] args) {
 		var app = Javalin.create(config -> {
-//			config.staticFiles.enableWebjars();
-			final JavalinJte fileRenderer = new JavalinJte(
-					TemplateEngine.create(new DirectoryCodeResolver(Path.of(Objects.requireNonNull(AuthServerMain.class.getClassLoader().getResource("templates")).getFile())), ContentType.Html)
-			);
-			config.fileRenderer(fileRenderer);
+			var codeResolver = new DirectoryCodeResolver(
+					Path.of(Objects.requireNonNull(AuthServerMain.class.getClassLoader().getResource("templates")).getFile()));
+			config.fileRenderer(new JavalinJte(TemplateEngine.create(codeResolver, ContentType.Html)));
 			config.requestLogger.http((ctx, ms) -> {
 				log.info("Request {} IP = {} Headers = {}", ctx.url(), ctx.ip(), ctx.headerMap());
 			});
@@ -67,22 +63,31 @@ public class AuthServerMain {
 				.option(ConnectionFactoryOptions.DATABASE, "mydatabase")
 				.build());
 
-		R2dbcEntityTemplate entityTemplate = new R2dbcEntityTemplate(connectionFactory);
-
-		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+		var entityTemplate = new R2dbcEntityTemplate(connectionFactory);
+		var validator = Validation.buildDefaultValidatorFactory().getValidator();
 
 		var signKey = createSignKey();
 		var tokenCreator = new JwtTokenCreator(signKey, Date::new, TOKEN_EXPIRATION_IN_MS);
 		var tokenInfoReader = new TokenInfoReaderImpl(signKey, Date::new);
+		var requestTokenExtractor = new CookieRequestTokenExtractor();
 
-		app.before("/home", new UserAuthenticationFilter(tokenInfoReader, ctx -> new AuthenticationRequiredException("/home")));
-		app.exception(AuthenticationRequiredException.class, (exception, ctx) -> {
-//			ctx.redirect("/login/?redirectOnSuccess=" + exception.getRedirectTo());
-			ctx.render("login.jte", Map.of(
-					"loginPageParams", LoginPageParams.builder()
-							.redirectTo(exception.getRedirectTo())
-							.build()
-			));
+		app.before("/authorize",
+				new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor, ctx -> {
+					String queryParams = ctx.queryParamMap()
+							.entrySet()
+							.stream()
+							.flatMap(v -> v.getValue().stream().map(q -> v + "=" + q))
+							.collect(Collectors.joining("&"));
+					// "/authorize/?" + queryParams
+					return new AuthenticationRequiredException("/authorize/?" + queryParams);
+				}));
+
+		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, entityTemplate, UUID::randomUUID));
+		app.post("/approve", ctx -> {
+
+		});
+		app.post("/reject", ctx -> {
+
 		});
 
 		app.get("/home", ctx -> {
@@ -90,17 +95,7 @@ public class AuthServerMain {
 			ctx.status(HttpStatus.OK);
 		});
 		app.post("/register", new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID));
-		app.get("/login", ctx -> {
-			String redirectOnSuccess = ctx.queryParam("redirectOnSuccess");
-
-			ctx.render("login.jte", Map.of(
-					"loginPageParams", LoginPageParams.builder()
-							.redirectTo(redirectOnSuccess)
-							.build()
-			));
-		});
 		app.post("/login", new LoginHandler(entityTemplate, new NaivePasswordService(), tokenCreator, TOKEN_EXPIRATION_IN_MS));
-
 
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,
@@ -114,6 +109,12 @@ public class AuthServerMain {
 				new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID),
 				UserRegistrationRequest.class
 		));
+
+		app.exception(AuthenticationRequiredException.class, (exception, ctx) -> ctx.render("login.jte", Map.of(
+				"loginPageParams", LoginPageParams.builder()
+						.redirectTo(exception.getRedirectTo())
+						.build()
+		)));
 
 		app.start(7000);
 

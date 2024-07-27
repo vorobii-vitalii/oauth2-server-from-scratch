@@ -5,6 +5,7 @@ import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 import api.security.training.exception.AuthenticationRequiredException;
+import api.security.training.token.RequestTokenExtractor;
 import api.security.training.token.TokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -14,19 +15,18 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserAuthenticationFilter implements Handler {
-	private static final String SESSION_COOKIE = "Session";
-
 	private final TokenInfoReader tokenInfoReader;
+	private final RequestTokenExtractor requestTokenExtractor;
 	private final Function<Context, AuthenticationRequiredException> errorFactory;
 
 	@Override
-	public void handle(@NotNull Context ctx) throws Exception {
-		var sessionToken = ctx.cookie(SESSION_COOKIE);
-		if (sessionToken == null) {
+	public void handle(@NotNull Context ctx) {
+		var sessionToken = requestTokenExtractor.extractTokenFromRequest(ctx);
+		if (sessionToken.isEmpty()) {
 			log.warn("Session cookie absent");
 			throw errorFactory.apply(ctx);
 		}
-		var tokenInfo = tokenInfoReader.readTokenInfo(sessionToken);
+		var tokenInfo = tokenInfoReader.readTokenInfo(sessionToken.get());
 		if (tokenInfo.isExpired()) {
 			log.warn("Session cookie expired!");
 			throw errorFactory.apply(ctx);

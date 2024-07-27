@@ -16,7 +16,6 @@ import api.security.training.client_registration.domain.ClientRegistration;
 import api.security.training.token.TokenCreator;
 import api.security.training.users.domain.User;
 import api.security.training.users.login.dto.UserLoginRequest;
-import api.security.training.users.login.redirect.AuthorizationRedirectURLFactory;
 import api.security.training.users.password.PasswordService;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -58,11 +57,11 @@ public class LoginHandler implements Handler {
 								var actualPasswordHash = foundUser.get().password();
 								if (passwordService.isPasswordCorrect(actualPasswordHash, userLoginRequest.password())) {
 									var redirectURL = userLoginRequest.redirectToOnSuccess();
-									log.info("Password is correct! Performing redirect to {}!", redirectURL);
+									log.info("Password is correct!");
 									// Generate JWT, sign it and set in cookie. STRICT TRUE, HTTP ONLY
 									ctx.cookie("Session", tokenCreator.createToken(username, Map.of()), (int) sessionCookieExpirationMs);
 									ctx.status(HttpStatus.OK);
-//									ctx.redirect(redirectURL, HttpStatus.FOUND);
+									//									ctx.redirect(redirectURL, HttpStatus.FOUND);
 								} else {
 									log.warn("Password is wrong...");
 									ctx.status(HttpStatus.UNAUTHORIZED);

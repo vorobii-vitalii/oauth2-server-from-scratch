@@ -15,6 +15,7 @@ import api.security.training.api.dto.RegisterClientRequest;
 import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationHandler;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
+import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
 import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.exception.AuthenticationRequiredException;
@@ -88,9 +89,7 @@ public class AuthServerMain {
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor, List.of(
 				new ImplicitAuthorizationRedirectHandler(tokenCreator)
 		)));
-		app.post("/reject/{authRequestId}", ctx -> {
-
-		});
+		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor));
 
 		app.post("/register", new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID));
 		app.post("/login", new LoginHandler(entityTemplate, new NaivePasswordService(), tokenCreator, TOKEN_EXPIRATION_IN_MS));

@@ -25,9 +25,25 @@
     }
   }
 
-  function rejectRequest() {
+  async function rejectRequest() {
     console.log("Going to reject ${authorizationRequestId}");
-
+    try {
+      const loginResponse = await fetch('/reject/${authorizationRequestId}', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        }
+      });
+      const jsonResponse = await loginResponse.json();
+      console.log("JSON response");
+      console.log(JSON.stringify(jsonResponse));
+      window.location.href = jsonResponse.redirectURL;
+    }
+    catch (err) {
+      console.error("Error on reject...");
+      console.error(err);
+      // TODO: Add error on UI
+    }
   }
 </script>
 

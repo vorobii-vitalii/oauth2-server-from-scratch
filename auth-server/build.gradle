@@ -53,6 +53,10 @@ dependencies {
 
     implementation 'gg.jte:jte:2.2.1'
     implementation 'io.javalin:javalin-rendering:6.1.3'
+
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.4-beta1'
+
 }
 
 test {

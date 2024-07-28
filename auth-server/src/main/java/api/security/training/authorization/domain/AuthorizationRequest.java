@@ -12,22 +12,32 @@ import lombok.Builder;
 @Builder
 public record AuthorizationRequest(
 		@Id
-		@Column("id")
+		@Column(ID)
 		UUID id,
 
-		@Column("username")
+		@Column(USERNAME)
 		String username,
 
-		@Column("response_type")
+		@Column(RESPONSE_TYPE)
 		String responseType,
 
-		@Column("client_id")
+		@Column(CLIENT_ID)
 		UUID clientId,
 
-		@Column("scope")
+		@Column(SCOPE)
 		String scope,
 
-		@Column("state")
-		String state
+		@Column(STATE)
+		String state,
+
+		@Column(REDIRECT_URL)
+		String redirectURL
 ) {
+	public static final String ID = "id";
+	public static final String USERNAME = "username";
+	public static final String RESPONSE_TYPE = "response_type";
+	public static final String CLIENT_ID = "client_id";
+	public static final String SCOPE = "scope";
+	public static final String STATE = "state";
+	public static final String REDIRECT_URL = "redirect_url";
 }

@@ -64,4 +64,10 @@ comment on column authorization_requests.client_id IS 'OAuth2 client';
 comment on column authorization_requests.scope IS 'Scope of authorization requests';
 comment on column authorization_requests.state IS 'State that was passed to authorization request';
 
---rollback DROP TABLE users;
+--rollback DROP TABLE authorization_requests;
+
+--changeset Vitalii:4 context:auth-server
+--comment: Add redirect_url column to authorization_requests
+alter table authorization_requests add column redirect_url varchar(400);
+comment on column authorization_requests.redirect_url is 'Redirect URL after request approval or denial';
+

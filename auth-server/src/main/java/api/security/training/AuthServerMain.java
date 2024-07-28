@@ -3,6 +3,7 @@ package api.security.training;
 import java.nio.file.Path;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,7 +12,9 @@ import java.util.stream.Collectors;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
 import api.security.training.api.dto.RegisterClientRequest;
+import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationHandler;
+import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
 import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.exception.AuthenticationRequiredException;
@@ -76,16 +79,16 @@ public class AuthServerMain {
 					String queryParams = ctx.queryParamMap()
 							.entrySet()
 							.stream()
-							.flatMap(v -> v.getValue().stream().map(q -> v + "=" + q))
+							.flatMap(v -> v.getValue().stream().map(q -> v.getKey() + "=" + q))
 							.collect(Collectors.joining("&"));
 					// "/authorize/?" + queryParams
 					return new AuthenticationRequiredException("/authorize/?" + queryParams);
 				}));
 
 		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, entityTemplate, UUID::randomUUID));
-		app.post("/approve", ctx -> {
-
-		});
+		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor, List.of(
+				new ImplicitAuthorizationRedirectHandler(tokenCreator)
+		)));
 		app.post("/reject", ctx -> {
 
 		});

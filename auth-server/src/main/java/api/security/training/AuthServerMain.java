@@ -33,7 +33,6 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.javalin.Javalin;
-import io.javalin.http.HttpStatus;
 import io.javalin.rendering.template.JavalinJte;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -89,14 +88,10 @@ public class AuthServerMain {
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor, List.of(
 				new ImplicitAuthorizationRedirectHandler(tokenCreator)
 		)));
-		app.post("/reject", ctx -> {
+		app.post("/reject/{authRequestId}", ctx -> {
 
 		});
 
-		app.get("/home", ctx -> {
-			ctx.render("main-page.jte");
-			ctx.status(HttpStatus.OK);
-		});
 		app.post("/register", new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID));
 		app.post("/login", new LoginHandler(entityTemplate, new NaivePasswordService(), tokenCreator, TOKEN_EXPIRATION_IN_MS));
 

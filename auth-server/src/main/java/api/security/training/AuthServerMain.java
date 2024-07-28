@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
@@ -74,16 +73,7 @@ public class AuthServerMain {
 		var tokenInfoReader = new TokenInfoReaderImpl(signKey, Date::new);
 		var requestTokenExtractor = new CookieRequestTokenExtractor();
 
-		app.before("/authorize",
-				new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor, ctx -> {
-					String queryParams = ctx.queryParamMap()
-							.entrySet()
-							.stream()
-							.flatMap(v -> v.getValue().stream().map(q -> v.getKey() + "=" + q))
-							.collect(Collectors.joining("&"));
-					// "/authorize/?" + queryParams
-					return new AuthenticationRequiredException("/authorize/?" + queryParams);
-				}));
+		app.before("/authorize", new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor));
 
 		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, entityTemplate, UUID::randomUUID));
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor, List.of(

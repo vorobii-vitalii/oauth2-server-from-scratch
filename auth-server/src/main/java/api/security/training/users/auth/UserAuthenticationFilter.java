@@ -17,19 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 public class UserAuthenticationFilter implements Handler {
 	private final TokenInfoReader tokenInfoReader;
 	private final RequestTokenExtractor requestTokenExtractor;
-	private final Function<Context, AuthenticationRequiredException> errorFactory;
 
 	@Override
 	public void handle(@NotNull Context ctx) {
 		var sessionToken = requestTokenExtractor.extractTokenFromRequest(ctx);
 		if (sessionToken.isEmpty()) {
 			log.warn("Session cookie absent");
-			throw errorFactory.apply(ctx);
+			throw new AuthenticationRequiredException(ctx.fullUrl());
 		}
 		var tokenInfo = tokenInfoReader.readTokenInfo(sessionToken.get());
 		if (tokenInfo.isExpired()) {
 			log.warn("Session cookie expired!");
-			throw errorFactory.apply(ctx);
+			throw new AuthenticationRequiredException(ctx.fullUrl());
 		} else {
 			log.info("Session cookie not expired yet...");
 		}

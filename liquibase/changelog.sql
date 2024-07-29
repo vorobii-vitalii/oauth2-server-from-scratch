@@ -71,3 +71,8 @@ comment on column authorization_requests.state IS 'State that was passed to auth
 alter table authorization_requests add column redirect_url varchar(400);
 comment on column authorization_requests.redirect_url is 'Redirect URL after request approval or denial';
 
+--changeset Vitalii:5 context:auth-server
+--comment: Add version column to tables for optimistic locking
+alter table client_registrations add column version int;
+alter table users add column version int;
+alter table authorization_requests add column version int;

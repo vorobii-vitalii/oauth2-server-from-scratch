@@ -3,6 +3,8 @@ package api.security.training.users.domain;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -29,7 +31,9 @@ public record User(
 		String phoneNumber,
 
 		@Column(PASSWORD)
-		String password
+		String password,
+
+		@Version Integer version
 ) {
 	public static final String USER_ID = "user_id";
 	public static final String USERNAME = "username";

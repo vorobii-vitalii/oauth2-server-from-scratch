@@ -23,7 +23,17 @@ dependencies {
     // Logging
     implementation 'ch.qos.logback:logback-classic:1.5.6'
 
-    implementation 'org.springframework.data:spring-data-r2dbc:3.3.2'
+//    implementation 'org.springframework.data:spring-data-r2dbc:3.3.2'
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jdbc
+    implementation 'org.springframework.data:spring-data-jdbc:3.3.2'
+
+    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation 'org.postgresql:postgresql:42.7.3'
+
+
 
     // Postgres driver
     implementation 'org.postgresql:r2dbc-postgresql:1.0.5.RELEASE'

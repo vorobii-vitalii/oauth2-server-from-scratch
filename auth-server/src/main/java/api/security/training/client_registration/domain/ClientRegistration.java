@@ -3,6 +3,7 @@ package api.security.training.client_registration.domain;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -29,7 +30,9 @@ public record ClientRegistration(
 		String clientName,
 
 		@Column(CLIENT_DESCRIPTION)
-		String clientDescription
+		String clientDescription,
+
+		@Version Integer version
 ) {
 
 	public static final String REDIRECT_URL = "redirect_url";

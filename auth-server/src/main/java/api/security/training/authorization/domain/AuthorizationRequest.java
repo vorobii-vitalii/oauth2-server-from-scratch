@@ -3,6 +3,8 @@ package api.security.training.authorization.domain;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -31,7 +33,9 @@ public record AuthorizationRequest(
 		String state,
 
 		@Column(REDIRECT_URL)
-		String redirectURL
+		String redirectURL,
+
+		@Version Integer version
 ) {
 	public static final String ID = "id";
 	public static final String USERNAME = "username";
@@ -40,4 +44,5 @@ public record AuthorizationRequest(
 	public static final String SCOPE = "scope";
 	public static final String STATE = "state";
 	public static final String REDIRECT_URL = "redirect_url";
+
 }

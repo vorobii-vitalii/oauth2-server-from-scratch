@@ -8,20 +8,26 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
+import api.security.training.authorization.AuthorizationRedirectHandler;
+import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationHandler;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
+import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.exception.AuthenticationRequiredException;
+import api.security.training.spring.RootConfig;
 import api.security.training.token.impl.CookieRequestTokenExtractor;
 import api.security.training.token.impl.JwtTokenCreator;
 import api.security.training.token.impl.TokenInfoReaderImpl;
 import api.security.training.users.auth.UserAuthenticationFilter;
+import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.dto.LoginPageParams;
 import api.security.training.users.login.handler.LoginHandler;
 import api.security.training.users.password.impl.NaivePasswordService;
@@ -36,9 +42,6 @@ import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactory;
-import io.r2dbc.spi.ConnectionFactoryOptions;
 import jakarta.validation.Validation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,16 +59,12 @@ public class AuthServerMain {
 				log.info("Request {} IP = {} Headers = {}", ctx.url(), ctx.ip(), ctx.headerMap());
 			});
 		});
-		ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
-				.option(ConnectionFactoryOptions.DRIVER, "postgresql")
-				.option(ConnectionFactoryOptions.HOST, "localhost")
-				.option(ConnectionFactoryOptions.PORT, 5432)
-				.option(ConnectionFactoryOptions.USER, "myuser")
-				.option(ConnectionFactoryOptions.PASSWORD, "secret")
-				.option(ConnectionFactoryOptions.DATABASE, "mydatabase")
-				.build());
+		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(RootConfig.class);
 
-		var entityTemplate = new R2dbcEntityTemplate(connectionFactory);
+		var authorizationRequestRepository = applicationContext.getBean(AuthorizationRequestRepository.class);
+		var clientRegistrationRepository = applicationContext.getBean(ClientRegistrationRepository.class);
+		var userRepository = applicationContext.getBean(UserRepository.class);
+
 		var validator = Validation.buildDefaultValidatorFactory().getValidator();
 
 		var signKey = createSignKey();
@@ -75,25 +74,27 @@ public class AuthServerMain {
 
 		app.before("/authorize", new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor));
 
-		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, entityTemplate, UUID::randomUUID));
-		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor, List.of(
+		List<AuthorizationRedirectHandler> authorizationRedirectHandlers = List.of(
 				new ImplicitAuthorizationRedirectHandler(tokenCreator)
-		)));
-		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(entityTemplate, tokenInfoReader, requestTokenExtractor));
+		);
 
-		app.post("/register", new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID));
-		app.post("/login", new LoginHandler(entityTemplate, new NaivePasswordService(), tokenCreator, TOKEN_EXPIRATION_IN_MS));
+		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectHandlers));
+
+		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectHandlers));
+		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
+		app.post("/register", new UserRegistrationHandler(new NaivePasswordService(), userRepository, UUID::randomUUID));
+		app.post("/login", new LoginHandler(userRepository, new NaivePasswordService(), tokenCreator, TOKEN_EXPIRATION_IN_MS));
 
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,
 				new SimpleErrorsListValidationErrorResponseFactory(),
-				new ClientRegistrationHandler(entityTemplate, UUID::randomUUID, new ClientSecretSupplierImpl()),
+				new ClientRegistrationHandler(clientRegistrationRepository, UUID::randomUUID, new ClientSecretSupplierImpl()),
 				RegisterClientRequest.class
 		));
 		app.post("/users", new ValidatingBodyHandler<>(
 				validator,
 				new SimpleErrorsListValidationErrorResponseFactory(),
-				new UserRegistrationHandler(new NaivePasswordService(), entityTemplate, UUID::randomUUID),
+				new UserRegistrationHandler(new NaivePasswordService(), userRepository, UUID::randomUUID),
 				UserRegistrationRequest.class
 		));
 

@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface AuthorizationRedirectHandler {
 	// Returns redirect URL
-	Mono<String> handleAuthorizationRedirect(AuthorizationRequest authorizationRequest);
+	String handleAuthorizationRedirect(AuthorizationRequest authorizationRequest);
 	boolean canHandleResponseType(String responseType);
 }

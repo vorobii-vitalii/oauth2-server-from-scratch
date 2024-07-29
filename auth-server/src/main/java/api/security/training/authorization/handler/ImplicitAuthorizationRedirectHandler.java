@@ -13,7 +13,6 @@ import api.security.training.token.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -24,7 +23,7 @@ public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedire
 
 	@SneakyThrows
 	@Override
-	public Mono<String> handleAuthorizationRedirect(AuthorizationRequest authorizationRequest) {
+	public String handleAuthorizationRedirect(AuthorizationRequest authorizationRequest) {
 		// TODO: Store in DB so that revoke can be done!
 		log.info("Handling implicit redirect {}", authorizationRequest);
 		var parsedAuthScopes = Optional.ofNullable(authorizationRequest.scope())
@@ -48,7 +47,7 @@ public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedire
 		if (authorizationRequest.scope() != null) {
 			uriBuilder.addParameter("scope", authorizationRequest.scope());
 		}
-		return Mono.just(uriBuilder.build().toString());
+		return uriBuilder.build().toString();
 	}
 
 	// TODO: Use to validate request

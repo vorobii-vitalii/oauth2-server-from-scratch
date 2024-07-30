@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import api.security.training.authorization.domain.AuthorizationScope;
 import api.security.training.token.TokenCreator;
@@ -24,7 +25,7 @@ public class JwtTokenCreator implements TokenCreator {
 		Date expiryDate = new Date(currentDate.getTime() + tokenExpirationInMs);
 		return Jwts.builder()
 				.setClaims(Map.of(
-						"scopes", authScopes.stream().map(AuthorizationScope::getCode).toList()
+						"scopes", authScopes.stream().map(AuthorizationScope::getCode).collect(Collectors.joining(" "))
 				))
 				.setSubject(username)
 				.setIssuedAt(currentDate)

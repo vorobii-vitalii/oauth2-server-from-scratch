@@ -1,6 +1,5 @@
 package api.security.training.authorization.dao;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;

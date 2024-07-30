@@ -1,14 +1,14 @@
 package api.security.training.authorization.handler;
 
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.List;
 
 import org.apache.hc.core5.net.URIBuilder;
 
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.domain.AuthorizationScope;
+import api.security.training.authorization.utils.ScopesParser;
 import api.security.training.token.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -26,16 +26,8 @@ public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedire
 	public String handleAuthorizationRedirect(AuthorizationRequest authorizationRequest) {
 		// TODO: Store in DB so that revoke can be done!
 		log.info("Handling implicit redirect {}", authorizationRequest);
-		var parsedAuthScopes = Optional.ofNullable(authorizationRequest.scope())
-				.stream()
-				.flatMap(v -> Arrays.stream(v.split("\\s+")))
-				.map(String::trim)
-				.filter(v -> !v.isEmpty())
-				.map(AuthorizationScope::parse)
-				.filter(Objects::nonNull)
-				.toList();
-		log.info("Parsed scopes = {}", parsedAuthScopes);
-		var scopesToUse = parsedAuthScopes.isEmpty() ? Arrays.asList(AuthorizationScope.values()) : parsedAuthScopes;
+		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
+				.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
 		var generatedToken = tokenCreator.createToken(authorizationRequest.username(), scopesToUse);
 		var uriBuilder = new URIBuilder(authorizationRequest.redirectURL())
 				.addParameter("client_id", authorizationRequest.clientId().toString())
@@ -50,7 +42,6 @@ public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedire
 		return uriBuilder.build().toString();
 	}
 
-	// TODO: Use to validate request
 	@Override
 	public boolean canHandleResponseType(String responseType) {
 		return TOKEN_RESPONSE_TYPE.equals(responseType);

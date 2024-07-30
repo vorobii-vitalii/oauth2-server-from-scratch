@@ -76,3 +76,16 @@ comment on column authorization_requests.redirect_url is 'Redirect URL after req
 alter table client_registrations add column version int;
 alter table users add column version int;
 alter table authorization_requests add column version int;
+
+--changeset Vitalii:6 context:auth-server
+--comment: Add table for generated client authentication codes
+create table client_authentication_codes
+(
+    authentication_code uuid not null,
+    authorization_request uuid not null,
+    client_id uuid not null,
+    scope varchar(120) not null,
+    state varchar(255),
+    version int
+);
+--rollback DROP TABLE client_authentication_codes;

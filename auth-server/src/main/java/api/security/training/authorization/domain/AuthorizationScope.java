@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import api.security.training.exception.InvalidScopeException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +24,11 @@ public enum AuthorizationScope {
 	private final String code;
 	private final String displayName;
 
-	public static AuthorizationScope parse(String str) {
-		return SCOPE_MAP.get(str);
+	public static AuthorizationScope parse(String str) throws InvalidScopeException {
+		AuthorizationScope parsedScope = SCOPE_MAP.get(str);
+		if (parsedScope == null) {
+			throw new InvalidScopeException("Scope " + str + " is invalid!");
+		}
+		return parsedScope;
 	}
 }

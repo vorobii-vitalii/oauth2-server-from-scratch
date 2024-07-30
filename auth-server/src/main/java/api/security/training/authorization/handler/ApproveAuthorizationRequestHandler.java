@@ -1,19 +1,14 @@
 package api.security.training.authorization.handler;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.Query.query;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.relational.core.query.Query;
 
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
-import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.token.RequestTokenExtractor;
 import api.security.training.token.TokenInfoReader;
 import io.javalin.http.Context;
@@ -56,15 +51,12 @@ public class ApproveAuthorizationRequestHandler implements Handler {
 				log.info("Will perform redirect to {}", redirectUrl);
 				ctx.json(Map.of("redirectURL", redirectUrl));
 				ctx.status(HttpStatus.OK);
+				// TODO: Delete auth request
 			} else {
 				ctx.status(HttpStatus.BAD_REQUEST);
 				ctx.json(List.of("You tried to approve request not requested by you!"));
 			}
 		}
-	}
-
-	private @NotNull Query queryAuthRequestById(UUID id) {
-		return query(where(AuthorizationRequest.ID).is(id));
 	}
 
 }

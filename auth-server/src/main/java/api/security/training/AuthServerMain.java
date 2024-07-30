@@ -14,8 +14,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import api.security.training.api.dto.RegisterClientRequest;
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
+import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
 import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationHandler;
+import api.security.training.authorization.handler.CodeAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
@@ -64,6 +66,7 @@ public class AuthServerMain {
 		var authorizationRequestRepository = applicationContext.getBean(AuthorizationRequestRepository.class);
 		var clientRegistrationRepository = applicationContext.getBean(ClientRegistrationRepository.class);
 		var userRepository = applicationContext.getBean(UserRepository.class);
+		var clientAuthenticationCodeRepository = applicationContext.getBean(ClientAuthenticationCodeRepository.class);
 
 		var validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -75,7 +78,8 @@ public class AuthServerMain {
 		app.before("/authorize", new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor));
 
 		List<AuthorizationRedirectHandler> authorizationRedirectHandlers = List.of(
-				new ImplicitAuthorizationRedirectHandler(tokenCreator)
+				new ImplicitAuthorizationRedirectHandler(tokenCreator),
+				new CodeAuthorizationRedirectHandler(clientAuthenticationCodeRepository, UUID::randomUUID)
 		);
 
 		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectHandlers));

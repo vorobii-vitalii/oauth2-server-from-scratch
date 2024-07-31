@@ -2,6 +2,7 @@ package api.security.training;
 
 import java.nio.file.Path;
 import java.security.Key;
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,18 +16,21 @@ import api.security.training.api.dto.RegisterClientRequest;
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
+import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
+import api.security.training.authorization.handler.AuthorizationCodeTokenRequestHandler;
 import api.security.training.authorization.handler.AuthorizationHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
+import api.security.training.authorization.handler.TokenHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.spring.RootConfig;
 import api.security.training.token.impl.CookieRequestTokenExtractor;
-import api.security.training.token.impl.JwtTokenCreator;
+import api.security.training.token.impl.JwtAccessTokenCreator;
 import api.security.training.token.impl.TokenInfoReaderImpl;
 import api.security.training.users.auth.UserAuthenticationFilter;
 import api.security.training.users.dao.UserRepository;
@@ -67,11 +71,12 @@ public class AuthServerMain {
 		var clientRegistrationRepository = applicationContext.getBean(ClientRegistrationRepository.class);
 		var userRepository = applicationContext.getBean(UserRepository.class);
 		var clientAuthenticationCodeRepository = applicationContext.getBean(ClientAuthenticationCodeRepository.class);
+		var clientRefreshTokenRepository = applicationContext.getBean(ClientRefreshTokenRepository.class);
 
 		var validator = Validation.buildDefaultValidatorFactory().getValidator();
 
 		var signKey = createSignKey();
-		var tokenCreator = new JwtTokenCreator(signKey, Date::new, TOKEN_EXPIRATION_IN_MS);
+		var tokenCreator = new JwtAccessTokenCreator(signKey, Date::new, TOKEN_EXPIRATION_IN_MS);
 		var tokenInfoReader = new TokenInfoReaderImpl(signKey, Date::new);
 		var requestTokenExtractor = new CookieRequestTokenExtractor();
 
@@ -83,6 +88,18 @@ public class AuthServerMain {
 		);
 
 		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectHandlers));
+		app.post("/token", new TokenHandler(
+				List.of(
+						new AuthorizationCodeTokenRequestHandler(
+								clientRegistrationRepository,
+								clientAuthenticationCodeRepository,
+								UUID::randomUUID,
+								clientRefreshTokenRepository,
+								Clock.systemUTC(),
+								tokenCreator
+						)
+				)
+		));
 
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectHandlers));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));

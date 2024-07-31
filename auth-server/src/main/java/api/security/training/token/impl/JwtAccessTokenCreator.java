@@ -8,13 +8,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import api.security.training.authorization.domain.AuthorizationScope;
-import api.security.training.token.TokenCreator;
+import api.security.training.token.AccessTokenCreator;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class JwtTokenCreator implements TokenCreator {
+public class JwtAccessTokenCreator implements AccessTokenCreator {
 	private final Key signKey;
 	private final Supplier<Date> currentDateProvider;
 	private final long tokenExpirationInMs;

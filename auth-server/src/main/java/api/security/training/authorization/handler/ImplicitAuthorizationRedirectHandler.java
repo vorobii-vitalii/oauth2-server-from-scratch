@@ -9,7 +9,7 @@ import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.domain.AuthorizationScope;
 import api.security.training.authorization.utils.ScopesParser;
-import api.security.training.token.TokenCreator;
+import api.security.training.token.AccessTokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedirectHandler {
 	public static final String TOKEN_RESPONSE_TYPE = "token";
 
-	private final TokenCreator tokenCreator;
+	private final AccessTokenCreator accessTokenCreator;
 
 	@SneakyThrows
 	@Override
@@ -28,7 +28,7 @@ public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedire
 		log.info("Handling implicit redirect {}", authorizationRequest);
 		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
 				.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
-		var generatedToken = tokenCreator.createToken(authorizationRequest.username(), scopesToUse);
+		var generatedToken = accessTokenCreator.createToken(authorizationRequest.username(), scopesToUse);
 		var uriBuilder = new URIBuilder(authorizationRequest.redirectURL())
 				.addParameter("client_id", authorizationRequest.clientId().toString())
 				.addParameter("access_token", generatedToken)

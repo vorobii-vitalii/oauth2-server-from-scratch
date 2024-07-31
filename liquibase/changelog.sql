@@ -89,3 +89,21 @@ create table client_authentication_codes
     version int
 );
 --rollback DROP TABLE client_authentication_codes;
+
+--changeset Vitalii:7 context:auth-server
+--comment: Add username column to client_authentication_codes
+alter table client_authentication_codes add column username varchar(255);
+
+--changeset Vitalii:8 context:auth-server
+--comment: Add table that stores refresh tokens allocated for clients
+create table client_refresh_tokens
+(
+    refresh_token uuid not null,
+    client_id uuid not null,
+    username varchar(255) not null,
+    scope varchar(255),
+    version int,
+    created_at timestamp
+);
+--rollback DROP TABLE client_refresh_tokens;
+

@@ -28,6 +28,7 @@ public class CodeAuthorizationRedirectHandler implements AuthorizationRedirectHa
 				.authorizationRequestId(authorizationRequest.id())
 				.scope(authorizationRequest.scope())
 				.state(authorizationRequest.state())
+				.username(authorizationRequest.username())
 				.build();
 		clientAuthenticationCodeRepository.save(clientAuthenticationCode);
 		var uriBuilder = new URIBuilder(authorizationRequest.redirectURL())

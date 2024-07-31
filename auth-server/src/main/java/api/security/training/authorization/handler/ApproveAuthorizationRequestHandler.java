@@ -40,6 +40,7 @@ public class ApproveAuthorizationRequestHandler implements Handler {
 			ctx.status(HttpStatus.NOT_FOUND);
 			ctx.json(List.of("Authentication request was not found!"));
 		} else {
+			//TODO: transactional
 			var authorizationRequest = authRequestOpt.get();
 			if (Objects.equals(authorizationRequest.username(), actualUsername)) {
 				log.info("Performing redirect...");

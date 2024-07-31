@@ -4,6 +4,6 @@ import java.util.List;
 
 import api.security.training.authorization.domain.AuthorizationScope;
 
-public interface TokenCreator {
+public interface AccessTokenCreator {
 	String createToken(String username, List<AuthorizationScope> authScopes);
 }

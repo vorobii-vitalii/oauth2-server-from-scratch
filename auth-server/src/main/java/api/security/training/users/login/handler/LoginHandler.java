@@ -6,7 +6,7 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 import api.security.training.authorization.domain.AuthorizationScope;
-import api.security.training.token.TokenCreator;
+import api.security.training.token.AccessTokenCreator;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.dto.UserLoginRequest;
 import api.security.training.users.password.PasswordService;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginHandler implements Handler {
 	private final UserRepository userRepository;
 	private final PasswordService passwordService;
-	private final TokenCreator tokenCreator;
+	private final AccessTokenCreator accessTokenCreator;
 	private final long sessionCookieExpirationMs;
 
 	@Override
@@ -38,7 +38,7 @@ public class LoginHandler implements Handler {
 				// Generate JWT, sign it and set in cookie. STRICT TRUE, HTTP ONLY
 				ctx.cookie(
 						"Session",
-						tokenCreator.createToken(username, Arrays.asList(AuthorizationScope.values())),
+						accessTokenCreator.createToken(username, Arrays.asList(AuthorizationScope.values())),
 						(int) sessionCookieExpirationMs
 				);
 				ctx.status(HttpStatus.OK);

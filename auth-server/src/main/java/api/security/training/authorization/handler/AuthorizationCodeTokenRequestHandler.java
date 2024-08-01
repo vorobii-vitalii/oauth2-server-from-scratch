@@ -18,7 +18,6 @@ import api.security.training.authorization.domain.AuthorizationScope;
 import api.security.training.authorization.domain.ClientRefreshToken;
 import api.security.training.authorization.utils.ScopesParser;
 import api.security.training.client_registration.UUIDSupplier;
-import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.token.AccessTokenCreator;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
@@ -30,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler {
 	private static final String AUTHORIZATION_CODE = "authorization_code";
 
-	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final ClientAuthenticationCodeRepository clientAuthenticationCodeRepository;
 	private final UUIDSupplier uuidSupplier;
 	private final ClientRefreshTokenRepository clientRefreshTokenRepository;
@@ -51,31 +49,7 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 			ctx.json(List.of("Code is absent"));
 			return;
 		}
-		var basicAuthCredentials = ctx.basicAuthCredentials();
-		if (basicAuthCredentials == null) {
-			log.warn("Client hasn't passed credentials");
-			ctx.status(HttpStatus.UNAUTHORIZED);
-			ctx.json(List.of("No credentials"));
-			return;
-		}
-		var clientId = basicAuthCredentials.getUsername();
-		var clientRegistrationOpt = clientRegistrationRepository.findById(UUID.fromString(clientId));
-		if (clientRegistrationOpt.isEmpty()) {
-			log.warn("Client by id = {} not exists", clientId);
-			ctx.status(HttpStatus.UNAUTHORIZED);
-			ctx.json(List.of("Wrong client id or secret"));
-			return;
-		}
-		var clientRegistration = clientRegistrationOpt.get();
-		// For now encrypted = not encrypted
-		var actualClientSecret = clientRegistration.clientSecretEncrypted();
-		var clientSecret = basicAuthCredentials.getPassword();
-		if (!Objects.equals(clientSecret, actualClientSecret)) {
-			log.warn("Wrong client secret...");
-			ctx.status(HttpStatus.UNAUTHORIZED);
-			ctx.json(List.of("Wrong client id or secret"));
-			return;
-		}
+		var clientId = Objects.requireNonNull(ctx.basicAuthCredentials()).getUsername();
 		log.info("All good. Client provided correct credentials...");
 		var clientAuthCodeOpt = clientAuthenticationCodeRepository.findById(UUID.fromString(authCodeTokenRequest.code()));
 		if (clientAuthCodeOpt.isEmpty()) {
@@ -86,7 +60,7 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 		}
 		var clientAuthenticationCode = clientAuthCodeOpt.get();
 		var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
-				.clientId(clientRegistration.clientId())
+				.clientId(UUID.fromString(clientId))
 				.createdAt(Instant.now(clock))
 				.refreshToken(uuidSupplier.createUUID())
 				.scope(clientAuthenticationCode.scope())
@@ -102,14 +76,13 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 		));
 		ctx.status(HttpStatus.OK);
 
-
-//		{
-//			"access_token":"2YotnFZFEjr1zCsicMWpAA",
-//				"token_type":"example",
-//				"expires_in":3600,
-//				"refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
-//				"example_parameter":"example_value"
-//		}
+		//		{
+		//			"access_token":"2YotnFZFEjr1zCsicMWpAA",
+		//				"token_type":"example",
+		//				"expires_in":3600,
+		//				"refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
+		//				"example_parameter":"example_value"
+		//		}
 
 	}
 }

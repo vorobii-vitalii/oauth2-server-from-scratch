@@ -62,9 +62,7 @@ public class AuthServerMain {
 			var codeResolver = new DirectoryCodeResolver(
 					Path.of(Objects.requireNonNull(AuthServerMain.class.getClassLoader().getResource("templates")).getFile()));
 			config.fileRenderer(new JavalinJte(TemplateEngine.create(codeResolver, ContentType.Html)));
-			config.requestLogger.http((ctx, ms) -> {
-				log.info("Request {} IP = {} Headers = {}", ctx.url(), ctx.ip(), ctx.headerMap());
-			});
+			config.requestLogger.http((ctx, ms) -> log.info("Request {} IP = {} Headers = {}", ctx.url(), ctx.ip(), ctx.headerMap()));
 		});
 		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(RootConfig.class);
 
@@ -93,7 +91,6 @@ public class AuthServerMain {
 		app.post("/token", new TokenHandler(
 				List.of(
 						new AuthorizationCodeTokenRequestHandler(
-								clientRegistrationRepository,
 								clientAuthenticationCodeRepository,
 								UUID::randomUUID,
 								clientRefreshTokenRepository,
@@ -108,7 +105,8 @@ public class AuthServerMain {
 								clientRefreshTokenRepository,
 								Clock.systemUTC()
 						)
-				)
+				),
+				clientRegistrationRepository
 		));
 
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectHandlers));
@@ -139,12 +137,8 @@ public class AuthServerMain {
 
 		Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
 		app.events(event -> {
-			event.serverStopping(() -> {
-				log.info("Server is stopping");
-			});
-			event.serverStopped(() -> {
-				log.info("Server stopped");
-			});
+			event.serverStopping(() -> log.info("Server is stopping"));
+			event.serverStopped(() -> log.info("Server stopped"));
 		});
 	}
 

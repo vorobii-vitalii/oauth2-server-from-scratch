@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
+import api.security.training.api.dto.UserRegistrationRequest;
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
@@ -25,12 +26,12 @@ import api.security.training.authorization.handler.ImplicitAuthorizationRedirect
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.authorization.handler.ResourceOwnerCredentialsTokenRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
-import api.security.training.client_registration.ClientSecretSupplierImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.handler.ClientRegistrationHandler;
+import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
+import api.security.training.client_registration.service.impl.ClientRegistrationServiceImpl;
 import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.spring.RootConfig;
-import api.security.training.client_registration.CookieRequestTokenExtractor;
 import api.security.training.token.impl.JwtAccessTokenCreator;
 import api.security.training.token.impl.JwtAccessTokenInfoReader;
 import api.security.training.users.auth.UserAuthenticationFilter;
@@ -38,7 +39,6 @@ import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.dto.LoginPageParams;
 import api.security.training.users.login.handler.LoginHandler;
 import api.security.training.users.password.impl.NaivePasswordService;
-import api.security.training.api.dto.UserRegistrationRequest;
 import api.security.training.users.registration.handler.UserRegistrationHandler;
 import api.security.training.validation.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
@@ -117,7 +117,11 @@ public class AuthServerMain {
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,
 				new SimpleErrorsListValidationErrorResponseFactory(),
-				new ClientRegistrationHandler(clientRegistrationRepository, UUID::randomUUID, new ClientSecretSupplierImpl()),
+				new ClientRegistrationHandler(new ClientRegistrationServiceImpl(
+						clientRegistrationRepository,
+						UUID::randomUUID,
+						new ClientSecretSupplierImpl()
+				)),
 				RegisterClientRequest.class
 		));
 		app.post("/users", new ValidatingBodyHandler<>(

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
-import api.security.training.client_registration.RequestTokenExtractor;
+import api.security.training.RequestTokenExtractor;
 import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

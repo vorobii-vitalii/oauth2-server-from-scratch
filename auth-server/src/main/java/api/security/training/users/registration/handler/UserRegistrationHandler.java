@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.relational.core.query.Query;
 
-import api.security.training.client_registration.UUIDSupplier;
+import api.security.training.UUIDSupplier;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.domain.User;
 import api.security.training.users.password.PasswordService;

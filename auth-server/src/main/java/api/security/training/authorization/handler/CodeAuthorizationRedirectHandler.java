@@ -6,7 +6,7 @@ import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.domain.ClientAuthenticationCode;
-import api.security.training.client_registration.UUIDSupplier;
+import api.security.training.UUIDSupplier;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

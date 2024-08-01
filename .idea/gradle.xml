@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/auth-server" />
             <option value="$PROJECT_DIR$/auth-server-api" />
             <option value="$PROJECT_DIR$/auth-server-commons" />
+            <option value="$PROJECT_DIR$/client-registration" />
           </set>
         </option>
       </GradleProjectSettings>

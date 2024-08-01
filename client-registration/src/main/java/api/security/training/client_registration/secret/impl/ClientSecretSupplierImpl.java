@@ -1,7 +1,10 @@
-package api.security.training.client_registration;
+package api.security.training.client_registration.secret.impl;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+
+import api.security.training.client_registration.secret.ClientSecret;
+import api.security.training.client_registration.secret.ClientSecretSupplier;
 
 public class ClientSecretSupplierImpl implements ClientSecretSupplier {
 	private static final int CLIENT_SECRET_BYTES = 50;

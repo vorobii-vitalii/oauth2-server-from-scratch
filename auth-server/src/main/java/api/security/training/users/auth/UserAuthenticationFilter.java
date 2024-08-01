@@ -3,7 +3,7 @@ package api.security.training.users.auth;
 import org.jetbrains.annotations.NotNull;
 
 import api.security.training.exception.AuthenticationRequiredException;
-import api.security.training.client_registration.RequestTokenExtractor;
+import api.security.training.RequestTokenExtractor;
 import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

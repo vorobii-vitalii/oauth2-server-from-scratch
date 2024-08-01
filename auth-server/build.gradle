@@ -24,26 +24,14 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.5.6'
 
     implementation 'org.springframework.data:spring-data-jdbc:3.3.2'
-
-    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
     implementation 'com.zaxxer:HikariCP:5.1.0'
-
-    // https://mvnrepository.com/artifact/org.postgresql/postgresql
     implementation 'org.postgresql:postgresql:42.7.3'
 
-
-
-    // Postgres driver
-    implementation 'org.postgresql:r2dbc-postgresql:1.0.5.RELEASE'
-
+    // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
-
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
-
-    // Cryptography
-    implementation 'org.jasypt:jasypt:1.9.3'
 
     // Validation API
     implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
@@ -62,10 +50,12 @@ dependencies {
     implementation 'gg.jte:jte:2.2.1'
     implementation 'io.javalin:javalin-rendering:6.1.3'
 
-    // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.4-beta1'
+    implementation 'com.spencerwi:Either.java:2.9.0'
+
     implementation project(':auth-server-api')
     implementation project(':access-token-common')
+    implementation project(':client-registration')
 }
 
 test {

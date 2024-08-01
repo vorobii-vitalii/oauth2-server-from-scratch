@@ -16,7 +16,7 @@ import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.token.dto.AuthorizationScope;
 import api.security.training.authorization.domain.ClientRefreshToken;
 import api.security.training.token.utils.ScopesParser;
-import api.security.training.client_registration.UUIDSupplier;
+import api.security.training.UUIDSupplier;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.password.PasswordService;

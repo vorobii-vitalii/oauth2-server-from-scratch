@@ -23,6 +23,7 @@ import api.security.training.authorization.handler.AuthorizationHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
+import api.security.training.authorization.handler.ResourceOwnerCredentialsTokenRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
 import api.security.training.client_registration.ClientSecretSupplierImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
@@ -86,6 +87,7 @@ public class AuthServerMain {
 				new ImplicitAuthorizationRedirectHandler(tokenCreator),
 				new CodeAuthorizationRedirectHandler(clientAuthenticationCodeRepository, UUID::randomUUID)
 		);
+		var passwordService = new NaivePasswordService();
 
 		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectHandlers));
 		app.post("/token", new TokenHandler(
@@ -97,14 +99,22 @@ public class AuthServerMain {
 								clientRefreshTokenRepository,
 								Clock.systemUTC(),
 								tokenCreator
+						),
+						new ResourceOwnerCredentialsTokenRequestHandler(
+								userRepository,
+								passwordService,
+								tokenCreator,
+								UUID::randomUUID,
+								clientRefreshTokenRepository,
+								Clock.systemUTC()
 						)
 				)
 		));
 
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectHandlers));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
-		app.post("/register", new UserRegistrationHandler(new NaivePasswordService(), userRepository, UUID::randomUUID));
-		app.post("/login", new LoginHandler(userRepository, new NaivePasswordService(), tokenCreator, TOKEN_EXPIRATION_IN_MS));
+		app.post("/register", new UserRegistrationHandler(passwordService, userRepository, UUID::randomUUID));
+		app.post("/login", new LoginHandler(userRepository, passwordService, tokenCreator, TOKEN_EXPIRATION_IN_MS));
 
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,
@@ -115,7 +125,7 @@ public class AuthServerMain {
 		app.post("/users", new ValidatingBodyHandler<>(
 				validator,
 				new SimpleErrorsListValidationErrorResponseFactory(),
-				new UserRegistrationHandler(new NaivePasswordService(), userRepository, UUID::randomUUID),
+				new UserRegistrationHandler(passwordService, userRepository, UUID::randomUUID),
 				UserRegistrationRequest.class
 		));
 

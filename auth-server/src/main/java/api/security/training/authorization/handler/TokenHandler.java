@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
 
+import api.security.training.api.dto.TokenRequest;
 import api.security.training.authorization.TokenRequestHandler;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -32,7 +33,8 @@ public class TokenHandler implements Handler {
 
 	@Override
 	public void handle(@NotNull Context ctx) throws Exception {
-		var grantType = ctx.queryParam("grant_type");
+		var tokenRequest = ctx.bodyAsClass(TokenRequest.class);
+		var grantType = tokenRequest.grantType();
 		var tokenRequestHandler = tokenRequestHandlers.stream()
 				.filter(v -> v.canHandleGrantType(grantType))
 				.findFirst();

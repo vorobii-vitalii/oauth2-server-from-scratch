@@ -32,7 +32,7 @@ public class ImplicitAuthorizationRedirectHandler implements AuthorizationRedire
 		var uriBuilder = new URIBuilder(authorizationRequest.redirectURL())
 				.addParameter("client_id", authorizationRequest.clientId().toString())
 				.addParameter("access_token", generatedToken)
-				.addParameter("token_type", "jwt");
+				.addParameter("token_type", "bearer");
 		if (authorizationRequest.state() != null) {
 			uriBuilder.addParameter("state", authorizationRequest.state());
 		}

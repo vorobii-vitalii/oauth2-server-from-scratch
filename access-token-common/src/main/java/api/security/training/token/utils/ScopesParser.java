@@ -1,11 +1,11 @@
-package api.security.training.authorization.utils;
+package api.security.training.token.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import api.security.training.authorization.domain.AuthorizationScope;
-import api.security.training.exception.InvalidScopeException;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.exception.InvalidScopeException;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

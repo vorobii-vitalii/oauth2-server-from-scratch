@@ -1,8 +1,7 @@
-package api.security.training.token;
+package api.security.training.token.dto;
 
 import java.util.List;
 
-import api.security.training.authorization.domain.AuthorizationScope;
 import lombok.Builder;
 
 @Builder

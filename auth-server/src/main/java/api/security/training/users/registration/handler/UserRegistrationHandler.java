@@ -13,7 +13,7 @@ import api.security.training.client_registration.UUIDSupplier;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.domain.User;
 import api.security.training.users.password.PasswordService;
-import api.security.training.users.registration.dto.UserRegistrationRequest;
+import api.security.training.api.dto.UserRegistrationRequest;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;

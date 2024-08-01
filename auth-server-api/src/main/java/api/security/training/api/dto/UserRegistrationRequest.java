@@ -1,4 +1,4 @@
-package api.security.training.users.registration.dto;
+package api.security.training.api.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

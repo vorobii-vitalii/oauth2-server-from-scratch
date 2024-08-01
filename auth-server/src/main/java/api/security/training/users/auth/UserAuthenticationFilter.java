@@ -1,12 +1,10 @@
 package api.security.training.users.auth;
 
-import java.util.function.Function;
-
 import org.jetbrains.annotations.NotNull;
 
 import api.security.training.exception.AuthenticationRequiredException;
-import api.security.training.token.RequestTokenExtractor;
-import api.security.training.token.TokenInfoReader;
+import api.security.training.client_registration.RequestTokenExtractor;
+import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserAuthenticationFilter implements Handler {
-	private final TokenInfoReader tokenInfoReader;
+	private final AccessTokenInfoReader accessTokenInfoReader;
 	private final RequestTokenExtractor requestTokenExtractor;
 
 	@Override
@@ -25,7 +23,7 @@ public class UserAuthenticationFilter implements Handler {
 			log.warn("Session cookie absent");
 			throw new AuthenticationRequiredException(ctx.fullUrl());
 		}
-		var tokenInfo = tokenInfoReader.readTokenInfo(sessionToken.get());
+		var tokenInfo = accessTokenInfoReader.readTokenInfo(sessionToken.get());
 		if (tokenInfo.isExpired()) {
 			log.warn("Session cookie expired!");
 			throw new AuthenticationRequiredException(ctx.fullUrl());

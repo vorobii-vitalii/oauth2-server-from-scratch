@@ -14,8 +14,8 @@ import org.springframework.data.relational.core.query.Query;
 
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
-import api.security.training.token.RequestTokenExtractor;
-import api.security.training.token.TokenInfoReader;
+import api.security.training.client_registration.RequestTokenExtractor;
+import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RejectAuthorizationRequestHandler implements Handler {
 	public static final String AUTH_REQUEST_ID = "authRequestId";
 	private final AuthorizationRequestRepository authorizationRequestRepository;
-	private final TokenInfoReader tokenInfoReader;
+	private final AccessTokenInfoReader accessTokenInfoReader;
 	private final RequestTokenExtractor requestTokenExtractor;
 
 	@SneakyThrows
@@ -37,7 +37,7 @@ public class RejectAuthorizationRequestHandler implements Handler {
 		var token = requestTokenExtractor.extractTokenFromRequest(ctx).orElseThrow();
 		// TODO: Set by filter to reduce latency
 		// TODO: get rid of reactive
-		var actualUsername = tokenInfoReader.readTokenInfo(token).username();
+		var actualUsername = accessTokenInfoReader.readTokenInfo(token).username();
 		var authRequestId = UUID.fromString(ctx.pathParam(AUTH_REQUEST_ID));
 		log.info("Checking whether authentication request by id = {} exists", authRequestId);
 		var authRequestOpt = authorizationRequestRepository.findById(authRequestId);

@@ -23,8 +23,6 @@ dependencies {
     // Logging
     implementation 'ch.qos.logback:logback-classic:1.5.6'
 
-//    implementation 'org.springframework.data:spring-data-r2dbc:3.3.2'
-    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jdbc
     implementation 'org.springframework.data:spring-data-jdbc:3.3.2'
 
     // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
@@ -67,6 +65,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.4-beta1'
     implementation project(':auth-server-api')
+    implementation project(':access-token-common')
 }
 
 test {

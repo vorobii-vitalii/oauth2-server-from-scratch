@@ -1,4 +1,4 @@
-package api.security.training.token;
+package api.security.training.client_registration;
 
 import java.util.Optional;
 

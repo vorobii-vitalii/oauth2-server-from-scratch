@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import api.security.training.authorization.domain.AuthorizationScope;
+import api.security.training.token.dto.AuthorizationScope;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.users.dao.UserRepository;
-import api.security.training.users.login.dto.UserLoginRequest;
+import api.security.training.api.dto.UserLoginRequest;
 import api.security.training.users.password.PasswordService;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

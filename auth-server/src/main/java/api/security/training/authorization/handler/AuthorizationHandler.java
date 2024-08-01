@@ -11,13 +11,13 @@ import org.springframework.dao.DataAccessException;
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
-import api.security.training.authorization.domain.AuthorizationScope;
-import api.security.training.authorization.utils.ScopesParser;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.exception.InvalidScopeException;
+import api.security.training.token.utils.ScopesParser;
 import api.security.training.client_registration.UUIDSupplier;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
-import api.security.training.exception.InvalidScopeException;
-import api.security.training.token.RequestTokenExtractor;
-import api.security.training.token.TokenInfoReader;
+import api.security.training.client_registration.RequestTokenExtractor;
+import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -33,7 +33,7 @@ public class AuthorizationHandler implements Handler {
 	public static final String STATE = "state";
 
 	private final RequestTokenExtractor requestTokenExtractor;
-	private final TokenInfoReader tokenInfoReader;
+	private final AccessTokenInfoReader accessTokenInfoReader;
 	private final AuthorizationRequestRepository authorizationRequestRepository;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final UUIDSupplier uuidSupplier;
@@ -69,7 +69,7 @@ public class AuthorizationHandler implements Handler {
 			var scopeList = ScopesParser.parseAuthorizationScopes(scope).orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
 			var token = requestTokenExtractor.extractTokenFromRequest(ctx).orElseThrow();
 			// TODO: Set by filter to reduce latency
-			var username = tokenInfoReader.readTokenInfo(token).username();
+			var username = accessTokenInfoReader.readTokenInfo(token).username();
 
 			authorizationRequestRepository.findById(clientId);
 

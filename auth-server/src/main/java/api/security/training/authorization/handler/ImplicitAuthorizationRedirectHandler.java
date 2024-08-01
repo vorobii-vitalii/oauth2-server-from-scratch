@@ -7,8 +7,8 @@ import org.apache.hc.core5.net.URIBuilder;
 
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.domain.AuthorizationRequest;
-import api.security.training.authorization.domain.AuthorizationScope;
-import api.security.training.authorization.utils.ScopesParser;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.utils.ScopesParser;
 import api.security.training.token.AccessTokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

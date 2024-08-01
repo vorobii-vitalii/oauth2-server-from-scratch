@@ -1,4 +1,4 @@
-package api.security.training.exception;
+package api.security.training.token.exception;
 
 public class InvalidScopeException extends Exception {
 	public InvalidScopeException(String errorMsg) {

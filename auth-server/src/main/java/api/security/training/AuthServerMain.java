@@ -30,15 +30,15 @@ import api.security.training.client_registration.dao.ClientRegistrationRepositor
 import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.spring.RootConfig;
-import api.security.training.token.impl.CookieRequestTokenExtractor;
+import api.security.training.client_registration.CookieRequestTokenExtractor;
 import api.security.training.token.impl.JwtAccessTokenCreator;
-import api.security.training.token.impl.TokenInfoReaderImpl;
+import api.security.training.token.impl.JwtAccessTokenInfoReader;
 import api.security.training.users.auth.UserAuthenticationFilter;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.dto.LoginPageParams;
 import api.security.training.users.login.handler.LoginHandler;
 import api.security.training.users.password.impl.NaivePasswordService;
-import api.security.training.users.registration.dto.UserRegistrationRequest;
+import api.security.training.api.dto.UserRegistrationRequest;
 import api.security.training.users.registration.handler.UserRegistrationHandler;
 import api.security.training.validation.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
@@ -76,7 +76,7 @@ public class AuthServerMain {
 
 		var signKey = createSignKey();
 		var tokenCreator = new JwtAccessTokenCreator(signKey, Date::new, TOKEN_EXPIRATION_IN_MS);
-		var tokenInfoReader = new TokenInfoReaderImpl(signKey, Date::new);
+		var tokenInfoReader = new JwtAccessTokenInfoReader(signKey, Date::new);
 		var requestTokenExtractor = new CookieRequestTokenExtractor();
 
 		app.before("/authorize", new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor));

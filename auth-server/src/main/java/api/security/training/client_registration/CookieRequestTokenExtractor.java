@@ -1,8 +1,7 @@
-package api.security.training.token.impl;
+package api.security.training.client_registration;
 
 import java.util.Optional;
 
-import api.security.training.token.RequestTokenExtractor;
 import io.javalin.http.Context;
 
 public class CookieRequestTokenExtractor implements RequestTokenExtractor {

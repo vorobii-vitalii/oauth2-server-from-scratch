@@ -3,13 +3,12 @@ package api.security.training.token.impl;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
-import api.security.training.authorization.domain.AuthorizationScope;
-import api.security.training.authorization.utils.ScopesParser;
-import api.security.training.token.TokenInfo;
-import api.security.training.token.TokenInfoReader;
+import api.security.training.token.AccessTokenInfoReader;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.dto.TokenInfo;
+import api.security.training.token.utils.ScopesParser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 @RequiredArgsConstructor
-public class TokenInfoReaderImpl implements TokenInfoReader {
+public class JwtAccessTokenInfoReader implements AccessTokenInfoReader {
 	private final Key signKey;
 	private final Supplier<Date> currentDateProvider;
 

@@ -1,10 +1,10 @@
-package api.security.training.authorization.domain;
+package api.security.training.token.dto;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import api.security.training.exception.InvalidScopeException;
+import api.security.training.token.exception.InvalidScopeException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

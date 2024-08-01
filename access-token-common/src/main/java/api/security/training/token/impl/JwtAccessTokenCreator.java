@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import api.security.training.authorization.domain.AuthorizationScope;
 import api.security.training.token.AccessTokenCreator;
+import api.security.training.token.dto.AuthorizationScope;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package api.security.training.users.auth;
+package api.security.training.filters;
 
 import org.jetbrains.annotations.NotNull;
 

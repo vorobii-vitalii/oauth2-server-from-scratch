@@ -13,7 +13,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
-import api.security.training.api.dto.UserRegistrationRequest;
 import api.security.training.authorization.AuthorizationRedirectHandler;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
@@ -27,19 +26,20 @@ import api.security.training.authorization.handler.RejectAuthorizationRequestHan
 import api.security.training.authorization.handler.ResourceOwnerCredentialsTokenRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
-import api.security.training.client_registration.handler.ClientRegistrationHandler;
 import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
 import api.security.training.client_registration.service.impl.ClientRegistrationServiceImpl;
 import api.security.training.exception.AuthenticationRequiredException;
+import api.security.training.filters.UserAuthenticationFilter;
+import api.security.training.handlers.ClientRegistrationHandler;
+import api.security.training.handlers.LoginHandler;
+import api.security.training.handlers.UserRegistrationHandler;
 import api.security.training.spring.RootConfig;
 import api.security.training.token.impl.JwtAccessTokenCreator;
 import api.security.training.token.impl.JwtAccessTokenInfoReader;
-import api.security.training.users.auth.UserAuthenticationFilter;
 import api.security.training.users.dao.UserRepository;
-import api.security.training.users.login.dto.LoginPageParams;
-import api.security.training.users.login.handler.LoginHandler;
+import api.security.training.users.login.service.impl.UserLoginServiceImpl;
 import api.security.training.users.password.impl.NaivePasswordService;
-import api.security.training.users.registration.handler.UserRegistrationHandler;
+import api.security.training.users.registration.service.impl.UserRegistrationServiceImpl;
 import api.security.training.validation.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
 import gg.jte.ContentType;
@@ -111,8 +111,10 @@ public class AuthServerMain {
 
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectHandlers));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
-		app.post("/register", new UserRegistrationHandler(passwordService, userRepository, UUID::randomUUID));
-		app.post("/login", new LoginHandler(userRepository, passwordService, tokenCreator, TOKEN_EXPIRATION_IN_MS));
+		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
+		app.post("/login", new LoginHandler(new UserLoginServiceImpl(
+				userRepository, passwordService, tokenCreator
+		), TOKEN_EXPIRATION_IN_MS));
 
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,
@@ -123,12 +125,6 @@ public class AuthServerMain {
 						new ClientSecretSupplierImpl()
 				)),
 				RegisterClientRequest.class
-		));
-		app.post("/users", new ValidatingBodyHandler<>(
-				validator,
-				new SimpleErrorsListValidationErrorResponseFactory(),
-				new UserRegistrationHandler(passwordService, userRepository, UUID::randomUUID),
-				UserRegistrationRequest.class
 		));
 
 		app.exception(AuthenticationRequiredException.class, (exception, ctx) -> ctx.render("login.jte", Map.of(

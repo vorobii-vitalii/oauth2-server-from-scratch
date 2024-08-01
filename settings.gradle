@@ -4,4 +4,5 @@ include 'auth-server'
 include 'auth-server-commons'
 include 'access-token-common'
 include 'client-registration'
+include 'users-authentication'
 

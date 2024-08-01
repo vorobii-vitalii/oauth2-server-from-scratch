@@ -39,7 +39,6 @@ dependencies {
     // Validation Impl
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
-    // https://mvnrepository.com/artifact/jakarta.el/jakarta.el-api
     implementation 'jakarta.el:jakarta.el-api:6.0.1'
     implementation 'org.glassfish.expressly:expressly:5.0.0'
 
@@ -56,6 +55,7 @@ dependencies {
     implementation project(':auth-server-api')
     implementation project(':access-token-common')
     implementation project(':client-registration')
+    implementation project(':users-authentication')
 }
 
 test {

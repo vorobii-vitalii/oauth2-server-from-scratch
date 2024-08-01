@@ -1,6 +1,4 @@
-package api.security.training.users.login.dto;
-
-import java.util.List;
+package api.security.training;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

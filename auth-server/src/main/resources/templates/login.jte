@@ -7,25 +7,28 @@
 <h3>Enter your login credentials</h3>
 <script>
   async function performLogin() {
+    let response;
     try {
-      const loginResponse = await fetch('/login', {
+      response = await fetch('/login', {
         method: 'POST',
         body: JSON.stringify({
           username: document.getElementById('username').value,
-          password: document.getElementById('password').value,
-          redirectToOnSuccess: "${loginPageParams.getRedirectTo()}"
+          password: document.getElementById('password').value
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8'
         }
       });
-      console.log("Login response call is successful");
-      console.log(loginResponse);
-      window.location.href = '${loginPageParams.getRedirectTo()}';
+    } catch (error) {
+      console.log('There was an error', error);
     }
-    catch (err) {
-      console.error("Error on Authorize");
-      console.error(err);
+
+    if (response?.ok) {
+      console.log("Login response call is successful");
+      window.location.href = '${loginPageParams.getRedirectTo()}';
+    } else {
+      console.error("Status = " + response?.status);
+      document.getElementById("errors").innerText = await response?.json();
     }
   }
 </script>
@@ -47,5 +50,7 @@
            placeholder="Enter your Password" required>
     <div>
         <button type="submit" onclick="performLogin()">Submit</button>
+    </div>
+    <div id="errors" style="color: red">
     </div>
 </div>

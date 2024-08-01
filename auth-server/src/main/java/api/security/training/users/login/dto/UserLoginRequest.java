@@ -15,21 +15,7 @@ public record UserLoginRequest(
 
 		@NotBlank
 		@NotNull
-		String password,
-
-		@NotBlank
-		@NotNull
-		String redirectToOnSuccess
-
-		//		@NotEmpty
-		//		@NotNull
-		//		List<String> scopes,
-		//
-		//		@NotNull
-		//		UUID clientId,
-		//
-		//		@NotNull
-		//		String grantType
+		String password
 ) {
 
 }

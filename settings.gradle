@@ -1,3 +1,4 @@
 rootProject.name = 'api-security-training'
+include 'auth-server-api'
 include 'auth-server'
 

@@ -32,6 +32,7 @@ import api.security.training.spring.RootConfig;
 import api.security.training.token.impl.JwtAccessTokenCreator;
 import api.security.training.token.impl.JwtAccessTokenInfoReader;
 import api.security.training.users.dao.UserRepository;
+import api.security.training.users.login.service.impl.UserCredentialsCheckerImpl;
 import api.security.training.users.login.service.impl.UserLoginServiceImpl;
 import api.security.training.users.password.impl.NaivePasswordService;
 import api.security.training.users.registration.service.impl.UserRegistrationServiceImpl;
@@ -88,6 +89,7 @@ public class AuthServerMain {
 		var passwordService = new NaivePasswordService();
 
 		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectStrategies));
+		var userCredentialsChecker = new UserCredentialsCheckerImpl(userRepository, passwordService);
 		app.post("/token", new TokenHandler(
 				List.of(
 						new AuthorizationCodeTokenRequestHandler(
@@ -98,8 +100,7 @@ public class AuthServerMain {
 								tokenCreator
 						),
 						new ResourceOwnerCredentialsTokenRequestHandler(
-								userRepository,
-								passwordService,
+								userCredentialsChecker,
 								tokenCreator,
 								UUID::randomUUID,
 								clientRefreshTokenRepository,
@@ -112,9 +113,7 @@ public class AuthServerMain {
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectStrategies));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
 		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
-		app.post("/login", new LoginHandler(new UserLoginServiceImpl(
-				userRepository, passwordService, tokenCreator
-		), TOKEN_EXPIRATION_IN_MS));
+		app.post("/login", new LoginHandler(new UserLoginServiceImpl(userCredentialsChecker, tokenCreator), TOKEN_EXPIRATION_IN_MS));
 
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,

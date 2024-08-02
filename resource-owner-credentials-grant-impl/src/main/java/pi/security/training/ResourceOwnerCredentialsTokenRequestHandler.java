@@ -18,8 +18,7 @@ import api.security.training.authorization.dto.TokenGenerationError;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.token.dto.AuthorizationScope;
 import api.security.training.token.utils.ScopesParser;
-import api.security.training.users.dao.UserRepository;
-import api.security.training.users.password.PasswordService;
+import api.security.training.users.login.service.UserCredentialsChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequestHandler {
 	private static final String PASSWORD_GRANT_TYPE = "password";
 
-	private final UserRepository userRepository;
-	private final PasswordService passwordService;
+	private final UserCredentialsChecker userCredentialsChecker;
 	private final AccessTokenCreator accessTokenCreator;
 	private final Supplier<UUID> uuidSupplier;
 	private final ClientRefreshTokenRepository clientRefreshTokenRepository;
@@ -45,33 +43,25 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 	@Override
 	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, ClientCredentials clientCredentials) {
 		var username = tokenRequest.username();
-		var foundUser = userRepository.findByUsername(username);
-		if (foundUser.isPresent()) {
-			log.info("User found. Verifying password...");
-			var actualPasswordHash = foundUser.get().password();
-			if (passwordService.isPasswordCorrect(actualPasswordHash, tokenRequest.password())) {
-				log.info("Password is correct!");
-				var authorizationScopes = ScopesParser.parseAuthorizationScopes(tokenRequest.scope())
-						.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
-				var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
-						.clientId(UUID.fromString(clientCredentials.clientId()))
-						.createdAt(Instant.now(clock))
-						.refreshToken(uuidSupplier.get())
-						.scope(tokenRequest.scope())
-						.username(username)
-						.build());
-				var accessToken = accessTokenCreator.createToken(username, authorizationScopes);
-				return Either.left(TokenResponse.builder()
-						.accessToken(accessToken)
-						.refreshToken(clientRefreshToken.refreshToken().toString())
-						.build());
-			} else {
-				log.warn("Password is wrong...");
-				return Either.right(new TokenGenerationError("Invalid credentials"));
-			}
-		} else {
-			log.warn("User with such username {} not found...", username);
-			return Either.right(new TokenGenerationError("Invalid credentials"));
+		boolean areCredentialsCorrect = userCredentialsChecker.areCredentialsCorrect(username, tokenRequest.password());
+		if (areCredentialsCorrect) {
+			log.info("Password is correct!");
+			var authorizationScopes = ScopesParser.parseAuthorizationScopes(tokenRequest.scope())
+					.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
+			var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
+					.clientId(UUID.fromString(clientCredentials.clientId()))
+					.createdAt(Instant.now(clock))
+					.refreshToken(uuidSupplier.get())
+					.scope(tokenRequest.scope())
+					.username(username)
+					.build());
+			var accessToken = accessTokenCreator.createToken(username, authorizationScopes);
+			return Either.left(TokenResponse.builder()
+					.accessToken(accessToken)
+					.refreshToken(clientRefreshToken.refreshToken().toString())
+					.build());
 		}
+		log.warn("Invalid credentials");
+		return Either.right(new TokenGenerationError("Invalid credentials"));
 	}
 }

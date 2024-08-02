@@ -7,4 +7,5 @@ include 'client-registration'
 include 'users-authentication'
 include 'auth-grant-common'
 include 'resource-owner-credentials-grant-impl'
+include 'implicit-grant-impl'
 

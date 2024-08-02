@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.apache.hc.core5.net.URIBuilder;
 
-import api.security.training.token.dto.AuthorizationScope;
-import api.security.training.token.utils.ScopesParser;
-import api.security.training.token.AccessTokenCreator;
 import api.security.training.authorization.AuthorizationRedirectStrategy;
 import api.security.training.authorization.domain.AuthorizationRequest;
+import api.security.training.token.AccessTokenCreator;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.utils.ScopesParser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,6 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 	@SneakyThrows
 	@Override
 	public String computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
-		// TODO: Store in DB so that revoke can be done!
 		log.info("Handling implicit redirect {}", authorizationRequest);
 		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
 				.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));

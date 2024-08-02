@@ -9,4 +9,5 @@ include 'auth-grant-common'
 include 'resource-owner-credentials-grant-impl'
 include 'implicit-grant-impl'
 include 'authorization-code-grant-impl'
+include 'client-authorization-obtain'
 

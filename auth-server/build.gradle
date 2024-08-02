@@ -61,6 +61,7 @@ dependencies {
     // Grants implementations
     implementation project(':resource-owner-credentials-grant-impl')
     implementation project(':implicit-grant-impl')
+    implementation project(':authorization-code-grant-impl')
 }
 
 test {

@@ -4,21 +4,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.spencerwi.either.Either;
 
-import api.security.training.UUIDSupplier;
 import api.security.training.api.dto.TokenRequest;
 import api.security.training.api.dto.TokenResponse;
-import api.security.training.token.AccessTokenCreator;
-import api.security.training.token.dto.AuthorizationScope;
-import api.security.training.token.utils.ScopesParser;
 import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.domain.ClientRefreshToken;
 import api.security.training.authorization.dto.ClientCredentials;
 import api.security.training.authorization.dto.TokenGenerationError;
+import api.security.training.token.AccessTokenCreator;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.utils.ScopesParser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 	private static final String AUTHORIZATION_CODE = "authorization_code";
 
 	private final ClientAuthenticationCodeRepository clientAuthenticationCodeRepository;
-	private final UUIDSupplier uuidSupplier;
+	private final Supplier<UUID> uuidSupplier;
 	private final ClientRefreshTokenRepository clientRefreshTokenRepository;
 	private final Clock clock;
 	private final AccessTokenCreator accessTokenCreator;
@@ -56,7 +56,7 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 		var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
 				.clientId(UUID.fromString(clientCredentials.clientId()))
 				.createdAt(Instant.now(clock))
-				.refreshToken(uuidSupplier.createUUID())
+				.refreshToken(uuidSupplier.get())
 				.scope(clientAuthenticationCode.scope())
 				.username(clientAuthenticationCode.username())
 				.build());

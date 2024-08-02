@@ -1,8 +1,10 @@
 package api.security.training.authorization.handler;
 
+import java.util.UUID;
+import java.util.function.Supplier;
+
 import org.apache.hc.core5.net.URIBuilder;
 
-import api.security.training.UUIDSupplier;
 import api.security.training.authorization.AuthorizationRedirectStrategy;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
@@ -17,13 +19,13 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 	private static final String CODE_RESPONSE_TYPE = "code";
 
 	private final ClientAuthenticationCodeRepository clientAuthenticationCodeRepository;
-	private final UUIDSupplier uuidSupplier;
+	private final Supplier<UUID> uuidSupplier;
 
 	@SneakyThrows
 	@Override
 	public String computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
 		var clientAuthenticationCode = ClientAuthenticationCode.builder()
-				.code(uuidSupplier.createUUID())
+				.code(uuidSupplier.get())
 				.clientId(authorizationRequest.clientId())
 				.authorizationRequestId(authorizationRequest.id())
 				.scope(authorizationRequest.scope())

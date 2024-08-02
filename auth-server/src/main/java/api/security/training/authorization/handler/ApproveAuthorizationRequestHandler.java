@@ -7,10 +7,10 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
-import api.security.training.authorization.AuthorizationRedirectHandler;
-import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.RequestTokenExtractor;
 import api.security.training.token.AccessTokenInfoReader;
+import api.security.training.authorization.AuthorizationRedirectStrategy;
+import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -24,7 +24,7 @@ public class ApproveAuthorizationRequestHandler implements Handler {
 	private final AuthorizationRequestRepository authorizationRequestRepository;
 	private final AccessTokenInfoReader accessTokenInfoReader;
 	private final RequestTokenExtractor requestTokenExtractor;
-	private final List<AuthorizationRedirectHandler> authorizationRedirectHandlers;
+	private final List<AuthorizationRedirectStrategy> authorizationRedirectStrategies;
 
 	@Override
 	public void handle(@NotNull Context ctx) {
@@ -44,11 +44,11 @@ public class ApproveAuthorizationRequestHandler implements Handler {
 			var authorizationRequest = authRequestOpt.get();
 			if (Objects.equals(authorizationRequest.username(), actualUsername)) {
 				log.info("Performing redirect...");
-				var authorizationRedirectHandler = authorizationRedirectHandlers.stream()
+				var authorizationRedirectHandler = authorizationRedirectStrategies.stream()
 						.filter(v -> v.canHandleResponseType(authorizationRequest.responseType()))
 						.findFirst()
 						.orElseThrow();
-				var redirectUrl = authorizationRedirectHandler.handleAuthorizationRedirect(authorizationRequest);
+				var redirectUrl = authorizationRedirectHandler.computeAuthorizationRedirectURL(authorizationRequest);
 				log.info("Will perform redirect to {}", redirectUrl);
 				ctx.json(Map.of("redirectURL", redirectUrl));
 				ctx.status(HttpStatus.OK);

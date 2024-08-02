@@ -13,15 +13,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
-import api.security.training.authorization.AuthorizationRedirectHandler;
-import api.security.training.authorization.dao.AuthorizationRequestRepository;
-import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
-import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationCodeTokenRequestHandler;
 import api.security.training.authorization.handler.AuthorizationHandler;
-import api.security.training.authorization.handler.CodeAuthorizationRedirectHandler;
-import api.security.training.authorization.handler.ImplicitAuthorizationRedirectHandler;
+import api.security.training.authorization.handler.CodeAuthorizationRedirectStrategy;
+import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.authorization.handler.ResourceOwnerCredentialsTokenRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
@@ -42,6 +38,10 @@ import api.security.training.users.password.impl.NaivePasswordService;
 import api.security.training.users.registration.service.impl.UserRegistrationServiceImpl;
 import api.security.training.validation.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
+import api.security.training.authorization.AuthorizationRedirectStrategy;
+import api.security.training.authorization.dao.AuthorizationRequestRepository;
+import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
+import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
@@ -81,13 +81,13 @@ public class AuthServerMain {
 
 		app.before("/authorize", new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor));
 
-		List<AuthorizationRedirectHandler> authorizationRedirectHandlers = List.of(
-				new ImplicitAuthorizationRedirectHandler(tokenCreator),
-				new CodeAuthorizationRedirectHandler(clientAuthenticationCodeRepository, UUID::randomUUID)
+		List<AuthorizationRedirectStrategy> authorizationRedirectStrategies = List.of(
+				new ImplicitAuthorizationRedirectStrategy(tokenCreator),
+				new CodeAuthorizationRedirectStrategy(clientAuthenticationCodeRepository, UUID::randomUUID)
 		);
 		var passwordService = new NaivePasswordService();
 
-		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectHandlers));
+		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectStrategies));
 		app.post("/token", new TokenHandler(
 				List.of(
 						new AuthorizationCodeTokenRequestHandler(
@@ -109,7 +109,7 @@ public class AuthServerMain {
 				clientRegistrationRepository
 		));
 
-		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectHandlers));
+		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectStrategies));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
 		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
 		app.post("/login", new LoginHandler(new UserLoginServiceImpl(

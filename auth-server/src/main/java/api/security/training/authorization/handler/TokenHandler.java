@@ -2,14 +2,14 @@ package api.security.training.authorization.handler;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
 import api.security.training.api.dto.TokenRequest;
-import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
+import api.security.training.authorization.TokenRequestHandler;
+import api.security.training.authorization.dto.ClientCredentials;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -22,18 +22,18 @@ public class TokenHandler implements Handler {
 	private final List<TokenRequestHandler> tokenRequestHandlers;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-//	grant_type
-//	REQUIRED. Value MUST be set to "authorization_code".
-//	code
-//	REQUIRED. The authorization code received from the
-//	authorization server.
-//	redirect_uri
-//	REQUIRED, if the "redirect_uri" parameter was included in the
-//	authorization request as described in Section 4.1.1, and their
-//	values MUST be identical.
-//	client_id
-//	REQUIRED, if the client is not authenticating with the
-//	authorization server as described in Section 3.2.1.
+	//	grant_type
+	//	REQUIRED. Value MUST be set to "authorization_code".
+	//	code
+	//	REQUIRED. The authorization code received from the
+	//	authorization server.
+	//	redirect_uri
+	//	REQUIRED, if the "redirect_uri" parameter was included in the
+	//	authorization request as described in Section 4.1.1, and their
+	//	values MUST be identical.
+	//	client_id
+	//	REQUIRED, if the client is not authenticating with the
+	//	authorization server as described in Section 3.2.1.
 
 	@Override
 	public void handle(@NotNull Context ctx) throws Exception {
@@ -72,7 +72,19 @@ public class TokenHandler implements Handler {
 				ctx.json(List.of("Wrong client id or secret"));
 				return;
 			}
-			tokenRequestHandler.get().handle(ctx);
+			var result = tokenRequestHandler.get().handleTokenRequest(tokenRequest, ClientCredentials.builder()
+					.clientId(clientId)
+					.clientSecret(clientSecret)
+					.build());
+			if (result.isLeft()) {
+				log.info("Token was successfully generated!");
+				ctx.status(HttpStatus.OK);
+				ctx.json(result.getLeft());
+			} else {
+				log.warn("Error on token generation");
+				ctx.status(HttpStatus.BAD_REQUEST);
+				ctx.json(result.getRight().reason());
+			}
 		}
 	}
 }

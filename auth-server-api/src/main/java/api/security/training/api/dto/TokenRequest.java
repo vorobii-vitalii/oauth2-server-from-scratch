@@ -9,6 +9,10 @@ import lombok.Builder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TokenRequest(
 		@JsonProperty("grant_type")
-		String grantType
+		String grantType,
+		String username,
+		String password,
+		String scope,
+		String code
 ) {
 }

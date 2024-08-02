@@ -7,5 +7,4 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class AuthenticationRequiredException extends RuntimeException {
 	private final String redirectTo;
-
 }

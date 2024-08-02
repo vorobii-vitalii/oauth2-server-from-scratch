@@ -8,9 +8,6 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DataAccessException;
 
-import api.security.training.authorization.AuthorizationRedirectHandler;
-import api.security.training.authorization.dao.AuthorizationRequestRepository;
-import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.token.dto.AuthorizationScope;
 import api.security.training.token.exception.InvalidScopeException;
 import api.security.training.token.utils.ScopesParser;
@@ -18,6 +15,9 @@ import api.security.training.UUIDSupplier;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.RequestTokenExtractor;
 import api.security.training.token.AccessTokenInfoReader;
+import api.security.training.authorization.AuthorizationRedirectStrategy;
+import api.security.training.authorization.dao.AuthorizationRequestRepository;
+import api.security.training.authorization.domain.AuthorizationRequest;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -37,7 +37,7 @@ public class AuthorizationHandler implements Handler {
 	private final AuthorizationRequestRepository authorizationRequestRepository;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final UUIDSupplier uuidSupplier;
-	private final List<AuthorizationRedirectHandler> authorizationRedirectHandlers;
+	private final List<AuthorizationRedirectStrategy> authorizationRedirectStrategies;
 
 	@Override
 	public void handle(@NotNull Context ctx) {
@@ -55,7 +55,7 @@ public class AuthorizationHandler implements Handler {
 			ctx.json(List.of("Response type not specified"));
 			return;
 		}
-		if (authorizationRedirectHandlers.stream().noneMatch(v -> v.canHandleResponseType(responseType))) {
+		if (authorizationRedirectStrategies.stream().noneMatch(v -> v.canHandleResponseType(responseType))) {
 			ctx.status(HttpStatus.BAD_REQUEST);
 			ctx.json(List.of("Response type not supported"));
 			return;

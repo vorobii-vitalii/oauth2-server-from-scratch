@@ -3,26 +3,25 @@ package api.security.training.authorization.handler;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
-import org.jetbrains.annotations.NotNull;
+import com.spencerwi.either.Either;
 
-import api.security.training.api.dto.ResourceOwnerCredentialsTokenRequest;
-import api.security.training.authorization.TokenRequestHandler;
-import api.security.training.authorization.dao.ClientRefreshTokenRepository;
-import api.security.training.token.dto.AuthorizationScope;
-import api.security.training.authorization.domain.ClientRefreshToken;
-import api.security.training.token.utils.ScopesParser;
 import api.security.training.UUIDSupplier;
+import api.security.training.api.dto.TokenRequest;
+import api.security.training.api.dto.TokenResponse;
 import api.security.training.token.AccessTokenCreator;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.utils.ScopesParser;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.password.PasswordService;
-import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
+import api.security.training.authorization.TokenRequestHandler;
+import api.security.training.authorization.dao.ClientRefreshTokenRepository;
+import api.security.training.authorization.domain.ClientRefreshToken;
+import api.security.training.authorization.dto.ClientCredentials;
+import api.security.training.authorization.dto.TokenGenerationError;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
@@ -42,12 +41,11 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 		return PASSWORD_GRANT_TYPE.equals(grantType);
 	}
 
+	@SneakyThrows
 	@Override
-	public void handle(@NotNull Context ctx) throws Exception {
-		var tokenRequest = ctx.bodyAsClass(ResourceOwnerCredentialsTokenRequest.class);
+	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, ClientCredentials clientCredentials) {
 		var username = tokenRequest.username();
 		var foundUser = userRepository.findByUsername(username);
-		var clientId = Objects.requireNonNull(ctx.basicAuthCredentials()).getUsername();
 		if (foundUser.isPresent()) {
 			log.info("User found. Verifying password...");
 			var actualPasswordHash = foundUser.get().password();
@@ -56,27 +54,24 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 				var authorizationScopes = ScopesParser.parseAuthorizationScopes(tokenRequest.scope())
 						.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
 				var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
-						.clientId(UUID.fromString(clientId))
+						.clientId(UUID.fromString(clientCredentials.clientId()))
 						.createdAt(Instant.now(clock))
 						.refreshToken(uuidSupplier.createUUID())
 						.scope(tokenRequest.scope())
 						.username(username)
 						.build());
 				var accessToken = accessTokenCreator.createToken(username, authorizationScopes);
-				ctx.json(Map.of(
-						"access_token", accessToken,
-						"refresh_token", clientRefreshToken.refreshToken().toString()
-				));
-				ctx.status(HttpStatus.OK);
+				return Either.left(TokenResponse.builder()
+						.accessToken(accessToken)
+						.refreshToken(clientRefreshToken.refreshToken().toString())
+						.build());
 			} else {
 				log.warn("Password is wrong...");
-				ctx.status(HttpStatus.UNAUTHORIZED);
-				ctx.json(List.of("Wrong password"));
+				return Either.right(new TokenGenerationError("Invalid credentials"));
 			}
 		} else {
 			log.warn("User with such username {} not found...", username);
-			ctx.status(HttpStatus.BAD_REQUEST);
-			ctx.json(List.of("Such user not found"));
+			return Either.right(new TokenGenerationError("Invalid credentials"));
 		}
 	}
 }

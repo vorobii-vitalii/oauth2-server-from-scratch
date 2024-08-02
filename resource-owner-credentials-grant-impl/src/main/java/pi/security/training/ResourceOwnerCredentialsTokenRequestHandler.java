@@ -1,25 +1,25 @@
-package api.security.training.authorization.handler;
+package pi.security.training;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.spencerwi.either.Either;
 
-import api.security.training.UUIDSupplier;
 import api.security.training.api.dto.TokenRequest;
 import api.security.training.api.dto.TokenResponse;
-import api.security.training.token.AccessTokenCreator;
-import api.security.training.token.dto.AuthorizationScope;
-import api.security.training.token.utils.ScopesParser;
-import api.security.training.users.dao.UserRepository;
-import api.security.training.users.password.PasswordService;
 import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.domain.ClientRefreshToken;
 import api.security.training.authorization.dto.ClientCredentials;
 import api.security.training.authorization.dto.TokenGenerationError;
+import api.security.training.token.AccessTokenCreator;
+import api.security.training.token.dto.AuthorizationScope;
+import api.security.training.token.utils.ScopesParser;
+import api.security.training.users.dao.UserRepository;
+import api.security.training.users.password.PasswordService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 	private final UserRepository userRepository;
 	private final PasswordService passwordService;
 	private final AccessTokenCreator accessTokenCreator;
-	private final UUIDSupplier uuidSupplier;
+	private final Supplier<UUID> uuidSupplier;
 	private final ClientRefreshTokenRepository clientRefreshTokenRepository;
 	private final Clock clock;
 
@@ -56,7 +56,7 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 				var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
 						.clientId(UUID.fromString(clientCredentials.clientId()))
 						.createdAt(Instant.now(clock))
-						.refreshToken(uuidSupplier.createUUID())
+						.refreshToken(uuidSupplier.get())
 						.scope(tokenRequest.scope())
 						.username(username)
 						.build());

@@ -1,8 +1,5 @@
 package api.security.training.authorization.handler;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.Query.query;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,12 +7,10 @@ import java.util.UUID;
 
 import org.apache.hc.core5.net.URIBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.relational.core.query.Query;
 
 import api.security.training.RequestTokenExtractor;
-import api.security.training.token.AccessTokenInfoReader;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
-import api.security.training.authorization.domain.AuthorizationRequest;
+import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -63,10 +58,6 @@ public class RejectAuthorizationRequestHandler implements Handler {
 				ctx.json(List.of("You tried to reject request not requested by you!"));
 			}
 		}
-	}
-
-	private @NotNull Query queryAuthRequestById(UUID id) {
-		return query(where(AuthorizationRequest.ID).is(id));
 	}
 
 }

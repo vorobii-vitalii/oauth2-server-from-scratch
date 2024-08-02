@@ -19,7 +19,6 @@ import api.security.training.authorization.handler.AuthorizationHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
-import api.security.training.authorization.handler.ResourceOwnerCredentialsTokenRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
@@ -51,6 +50,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Validation;
 import lombok.extern.slf4j.Slf4j;
+import pi.security.training.ResourceOwnerCredentialsTokenRequestHandler;
 
 @Slf4j
 public class AuthServerMain {

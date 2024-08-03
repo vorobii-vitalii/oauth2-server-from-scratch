@@ -13,12 +13,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
-import api.security.training.authorization.handler.ApproveAuthorizationRequestHandler;
+import api.security.training.handlers.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationCodeTokenRequestHandler;
-import api.security.training.authorization.handler.AuthorizationHandler;
+import api.security.training.handlers.AuthorizationHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
-import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
+import api.security.training.handlers.RejectAuthorizationRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
 import api.security.training.authorization.service.impl.ApproveAuthorizationRequestServiceImpl;
 import api.security.training.authorization.service.impl.ObtainResourceOwnerConsentServiceImpl;

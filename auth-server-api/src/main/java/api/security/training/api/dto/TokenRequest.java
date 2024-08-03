@@ -13,6 +13,8 @@ public record TokenRequest(
 		String username,
 		String password,
 		String scope,
-		String code
+		String code,
+		@JsonProperty("refresh_token")
+		String refreshToken
 ) {
 }

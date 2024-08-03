@@ -3,6 +3,7 @@ package api.security.training.authorization.handler;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -60,9 +61,9 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 				.build());
 		String accessToken = accessTokenCreator.createToken(
 				clientAuthenticationCode.username(),
-				ScopesParser.parseAuthorizationScopes(clientAuthenticationCode.scope())
-						.map(v -> v.orElse(Arrays.asList(AuthorizationScope.values())))
-						.getResult());
+				clientAuthenticationCode.scope() == null
+						? List.of(AuthorizationScope.values())
+						: ScopesParser.parseAuthorizationScopes(clientAuthenticationCode.scope()).getResult());
 		clientAuthenticationCodeRepository.delete(clientAuthenticationCode);
 		return Result.ok(TokenResponse.builder()
 				.accessToken(accessToken)

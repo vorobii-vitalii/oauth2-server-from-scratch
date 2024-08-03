@@ -1,7 +1,6 @@
 package api.security.training.authorization.service.impl;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +69,9 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 					"Response type not supported"
 			)));
 		}
-		var scopeList = ScopesParser.parseAuthorizationScopes(request.scope()).map(v -> v.orElse(Arrays.asList(AuthorizationScope.values())));
+		var scopeList = request.scope() == null
+				? Result.ok(List.of(AuthorizationScope.values()))
+				: ScopesParser.parseAuthorizationScopes(request.scope());
 		if (scopeList.isErr()) {
 			log.warn("Failed to parse scopes");
 			return Result.ok(Either.right(

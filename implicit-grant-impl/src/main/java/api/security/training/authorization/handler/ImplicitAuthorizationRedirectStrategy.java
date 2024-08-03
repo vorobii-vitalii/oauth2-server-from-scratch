@@ -1,7 +1,6 @@
 package api.security.training.authorization.handler;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,9 +26,9 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 	@Override
 	public URI computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
 		log.info("Handling implicit redirect {}", authorizationRequest);
-		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
-				.map(v -> v.orElse(List.of(AuthorizationScope.values())))
-				.getResult();
+		List<AuthorizationScope> scopesToUse = authorizationRequest.scope() == null
+				? List.of(AuthorizationScope.values())
+				: ScopesParser.parseAuthorizationScopes(authorizationRequest.scope()).getResult();
 		var generatedToken = accessTokenCreator.createToken(authorizationRequest.username(), scopesToUse);
 		var parameters = new HashMap<String, String>();
 		parameters.put("client_id", authorizationRequest.clientId().toString());

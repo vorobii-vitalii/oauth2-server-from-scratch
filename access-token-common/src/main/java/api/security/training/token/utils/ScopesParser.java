@@ -2,7 +2,6 @@ package api.security.training.token.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.spencerwi.either.Result;
 
@@ -17,10 +16,7 @@ public class ScopesParser {
 	 * @param scopes - scopes in format mentioned in OAuth2 specification
 	 * @return List of authorization scopes
 	 */
-	public Result<Optional<List<AuthorizationScope>>> parseAuthorizationScopes(String scopes) {
-		if (scopes == null) {
-			return Result.ok(Optional.empty());
-		}
+	public Result<List<AuthorizationScope>> parseAuthorizationScopes(String scopes) {
 		List<AuthorizationScope> parsedAuthorizationScopes = new ArrayList<>();
 		for (String scope : scopes.split("\\s+")) {
 			if (scope.isBlank()) {
@@ -32,7 +28,7 @@ public class ScopesParser {
 			}
 			parsedAuthorizationScopes.add(parsedAuthScope.get());
 		}
-		return Result.ok(Optional.of(parsedAuthorizationScopes));
+		return Result.ok(parsedAuthorizationScopes);
 	}
 
 }

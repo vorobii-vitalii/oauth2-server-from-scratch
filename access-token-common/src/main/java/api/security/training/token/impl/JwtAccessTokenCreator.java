@@ -30,6 +30,7 @@ public class JwtAccessTokenCreator implements AccessTokenCreator {
 				.setSubject(username)
 				.setIssuedAt(currentDate)
 				.setExpiration(expiryDate)
-				.signWith(signKey, SignatureAlgorithm.HS256).compact();
+				.signWith(signKey, SignatureAlgorithm.HS256)
+				.compact();
 	}
 }

@@ -44,9 +44,9 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 		boolean areCredentialsCorrect = userCredentialsChecker.areCredentialsCorrect(username, tokenRequest.password());
 		if (areCredentialsCorrect) {
 			log.info("Password is correct!");
-			var authorizationScopes = ScopesParser.parseAuthorizationScopes(tokenRequest.scope())
-					.map(v -> v.orElse(List.of(AuthorizationScope.values())))
-					.getResult();
+			var authorizationScopes = tokenRequest.scope() == null
+					? List.of(AuthorizationScope.values())
+					: ScopesParser.parseAuthorizationScopes(tokenRequest.scope()).getResult();
 			var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
 					.clientId(UUID.fromString(clientId))
 					.createdAt(Instant.now(clock))

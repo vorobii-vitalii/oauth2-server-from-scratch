@@ -1,9 +1,7 @@
 package api.security.training.token.impl;
 
 import java.security.Key;
-import java.util.Date;
 import java.util.List;
-import java.util.function.Supplier;
 
 import api.security.training.token.AccessTokenInfoReader;
 import api.security.training.token.dto.AuthorizationScope;
@@ -18,7 +16,6 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class JwtAccessTokenInfoReader implements AccessTokenInfoReader {
 	private final Key signKey;
-	private final Supplier<Date> currentDateProvider;
 
 	@SneakyThrows
 	@Override
@@ -28,11 +25,9 @@ public class JwtAccessTokenInfoReader implements AccessTokenInfoReader {
 			var scopes = claims.get("scopes");
 			List<AuthorizationScope> authScopes = scopes == null
 					? List.of()
-					: ScopesParser.parseAuthorizationScopes(scopes.toString())
-							.map(v -> v.orElse(List.of()))
-							.getResult();
+					: ScopesParser.parseAuthorizationScopes(scopes.toString()).getResult();
 			return TokenInfo.builder()
-					.isExpired(claims.getExpiration().before(currentDateProvider.get()))
+					.isExpired(false)
 					.username(claims.getSubject())
 					.authScopes(authScopes)
 					.build();

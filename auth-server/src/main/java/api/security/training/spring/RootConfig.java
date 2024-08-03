@@ -40,7 +40,7 @@ public class RootConfig {
 
 	@Bean
 	AccessTokenInfoReader accessTokenInfoReader() {
-		return new JwtAccessTokenInfoReader(createSignKey(), Date::new);
+		return new JwtAccessTokenInfoReader(createSignKey());
 	}
 
 	@Bean

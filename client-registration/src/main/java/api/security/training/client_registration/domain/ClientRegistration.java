@@ -1,5 +1,6 @@
 package api.security.training.client_registration.domain;
 
+import java.net.URI;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -24,7 +25,7 @@ public record ClientRegistration(
 		String clientType,
 
 		@Column(REDIRECT_URL)
-		String redirectURL,
+		URI redirectURL,
 
 		@Column(CLIENT_NAME)
 		String clientName,

@@ -1,5 +1,7 @@
 package api.security.training.spring;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -13,6 +15,9 @@ import org.springframework.transaction.TransactionManager;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+import api.security.training.converter.StringToURIConverter;
+import api.security.training.converter.URIToStringConverter;
 
 @EnableJdbcRepositories("api.security.training")
 @Configuration
@@ -40,4 +45,11 @@ public class DBConfiguration extends AbstractJdbcConfiguration {
 		return new DataSourceTransactionManager(dataSource);
 	}
 
+	@Override
+	protected List<?> userConverters() {
+		return List.of(
+				new URIToStringConverter(),
+				new StringToURIConverter()
+		);
+	}
 }

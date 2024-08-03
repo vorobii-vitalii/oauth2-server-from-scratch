@@ -38,7 +38,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 					.clientName(clientName)
 					.clientDescription(registerClientRequest.description())
 					.clientType(registerClientRequest.clientType().getValue())
-					.redirectURL(registerClientRequest.redirectUrl().toString())
+					.redirectURL(registerClientRequest.redirectUrl())
 					.build();
 			clientRegistrationRepository.save(clientRegistration);
 			log.info("Successfully inserted new client {}", clientRegistration);

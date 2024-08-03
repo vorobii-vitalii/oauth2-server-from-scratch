@@ -50,8 +50,8 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 		}
 		var clientRegistration = foundClientRegistration.get();
 		// Compare redirect_uri with stored if present
-		var redirectURI = coalesce(request.redirectURI(), clientRegistration.redirectURL());
-		if (!Objects.equals(redirectURI, clientRegistration.redirectURL())) {
+		var redirectURI = coalesce(request.redirectURI(), clientRegistration.redirectURL().toString());
+		if (!Objects.equals(redirectURI, clientRegistration.redirectURL().toString())) {
 			log.warn("Redirect URI specified by client is wrong! {} != {}", redirectURI, clientRegistration.redirectURL());
 			return Result.err(new IllegalArgumentException("Wrong redirect_uri"));
 		}

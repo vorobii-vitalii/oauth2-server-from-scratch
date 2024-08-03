@@ -1,5 +1,6 @@
 package api.security.training.authorization.service.impl;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class RejectAuthorizationRequestServiceImpl implements RejectAuthorizatio
 
 	@SneakyThrows
 	@Override
-	public Result<String> rejectAuthorizationRequest(RejectAuthorizationRequest rejectAuthorizationRequest) {
+	public Result<URI> rejectAuthorizationRequest(RejectAuthorizationRequest rejectAuthorizationRequest) {
 		var authRequestId = rejectAuthorizationRequest.authorizationRequestId();
 		log.info("Checking whether authentication request by id = {} exists", authRequestId);
 		var authRequestOpt = authorizationRequestRepository.findById(authRequestId);
@@ -37,7 +38,7 @@ public class RejectAuthorizationRequestServiceImpl implements RejectAuthorizatio
 				if (authorizationRequest.state() != null) {
 					parameters.put("state", authorizationRequest.state());
 				}
-				return Result.ok(uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters).toString());
+				return Result.ok(uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters));
 			} else {
 				return Result.err(new IllegalStateException("You tried to reject request not requested by you!"));
 			}

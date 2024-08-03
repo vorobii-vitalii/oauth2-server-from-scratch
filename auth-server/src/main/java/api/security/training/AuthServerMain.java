@@ -45,7 +45,6 @@ import api.security.training.token.impl.JwtAccessTokenCreator;
 import api.security.training.token.impl.JwtAccessTokenInfoReader;
 import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.service.impl.UserCredentialsCheckerImpl;
-import api.security.training.users.login.service.impl.UserLoginServiceImpl;
 import api.security.training.users.password.impl.NaivePasswordService;
 import api.security.training.users.registration.service.impl.UserRegistrationServiceImpl;
 import api.security.training.validation.ValidatingBodyHandler;
@@ -135,7 +134,7 @@ public class AuthServerMain {
 		)));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(new RejectAuthorizationRequestServiceImpl(authorizationRequestRepository), requestParameterService));
 		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
-		app.post("/login", new LoginHandler(new UserLoginServiceImpl(userCredentialsChecker, tokenCreator), TOKEN_EXPIRATION_IN_MS));
+		app.post("/login", new LoginHandler(userCredentialsChecker, tokenCreator, TOKEN_EXPIRATION_IN_MS));
 
 		app.post("/clients", new ValidatingBodyHandler<>(
 				validator,

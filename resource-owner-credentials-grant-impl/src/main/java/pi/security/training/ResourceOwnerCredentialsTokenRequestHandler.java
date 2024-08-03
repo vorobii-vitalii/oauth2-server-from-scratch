@@ -6,14 +6,13 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import com.spencerwi.either.Either;
+import com.spencerwi.either.Result;
 
 import api.security.training.api.dto.TokenRequest;
 import api.security.training.api.dto.TokenResponse;
 import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.domain.ClientRefreshToken;
-import api.security.training.authorization.dto.TokenGenerationError;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.token.dto.AuthorizationScope;
 import api.security.training.token.utils.ScopesParser;
@@ -40,7 +39,7 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 
 	@SneakyThrows
 	@Override
-	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, String clientId) {
+	public Result<TokenResponse> handleTokenRequest(TokenRequest tokenRequest, String clientId) {
 		var username = tokenRequest.username();
 		boolean areCredentialsCorrect = userCredentialsChecker.areCredentialsCorrect(username, tokenRequest.password());
 		if (areCredentialsCorrect) {
@@ -55,12 +54,12 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 					.username(username)
 					.build());
 			var accessToken = accessTokenCreator.createToken(username, authorizationScopes);
-			return Either.left(TokenResponse.builder()
+			return Result.ok(TokenResponse.builder()
 					.accessToken(accessToken)
 					.refreshToken(clientRefreshToken.refreshToken().toString())
 					.build());
 		}
 		log.warn("Invalid credentials");
-		return Either.right(new TokenGenerationError("Invalid credentials"));
+		return Result.err(new IllegalArgumentException("Invalid credentials"));
 	}
 }

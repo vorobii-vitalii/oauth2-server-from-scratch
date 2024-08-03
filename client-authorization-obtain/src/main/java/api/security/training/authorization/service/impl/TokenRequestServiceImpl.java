@@ -45,13 +45,6 @@ public class TokenRequestServiceImpl implements TokenRequestService {
 			log.warn("Wrong client secret...");
 			return Result.err(new IllegalArgumentException("Wrong client credentials"));
 		}
-		var result = tokenRequestHandler.get().handleTokenRequest(tokenRequest, clientId);
-		if (result.isLeft()) {
-			log.info("Token was successfully generated!");
-			return Result.ok(result.getLeft());
-		} else {
-			log.warn("Error on token generation");
-			return Result.err(new IllegalStateException(result.getRight().reason()));
-		}
+		return tokenRequestHandler.get().handleTokenRequest(tokenRequest, clientId);
 	}
 }

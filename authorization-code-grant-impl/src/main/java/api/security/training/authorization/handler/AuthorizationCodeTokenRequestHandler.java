@@ -60,7 +60,9 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 				.build());
 		String accessToken = accessTokenCreator.createToken(
 				clientAuthenticationCode.username(),
-				ScopesParser.parseAuthorizationScopes(clientAuthenticationCode.scope()).orElse(Arrays.asList(AuthorizationScope.values())));
+				ScopesParser.parseAuthorizationScopes(clientAuthenticationCode.scope())
+						.map(v -> v.orElse(Arrays.asList(AuthorizationScope.values())))
+						.getResult());
 		clientAuthenticationCodeRepository.delete(clientAuthenticationCode);
 		return Result.ok(TokenResponse.builder()
 				.accessToken(accessToken)

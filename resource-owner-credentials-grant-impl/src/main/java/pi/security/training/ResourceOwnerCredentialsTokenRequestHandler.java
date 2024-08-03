@@ -2,7 +2,7 @@ package pi.security.training;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -45,7 +45,8 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 		if (areCredentialsCorrect) {
 			log.info("Password is correct!");
 			var authorizationScopes = ScopesParser.parseAuthorizationScopes(tokenRequest.scope())
-					.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
+					.map(v -> v.orElse(List.of(AuthorizationScope.values())))
+					.getResult();
 			var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
 					.clientId(UUID.fromString(clientId))
 					.createdAt(Instant.now(clock))

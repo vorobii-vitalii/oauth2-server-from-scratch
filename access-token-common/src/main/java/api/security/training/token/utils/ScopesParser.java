@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.spencerwi.either.Result;
+
 import api.security.training.token.dto.AuthorizationScope;
-import api.security.training.token.exception.InvalidScopeException;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -16,18 +17,22 @@ public class ScopesParser {
 	 * @param scopes - scopes in format mentioned in OAuth2 specification
 	 * @return List of authorization scopes
 	 */
-	public Optional<List<AuthorizationScope>> parseAuthorizationScopes(String scopes) throws InvalidScopeException {
+	public Result<Optional<List<AuthorizationScope>>> parseAuthorizationScopes(String scopes) {
 		if (scopes == null) {
-			return Optional.empty();
+			return Result.ok(Optional.empty());
 		}
 		List<AuthorizationScope> parsedAuthorizationScopes = new ArrayList<>();
 		for (String scope : scopes.split("\\s+")) {
 			if (scope.isBlank()) {
 				continue;
 			}
-			parsedAuthorizationScopes.add(AuthorizationScope.parse(scope.trim()));
+			var parsedAuthScope = AuthorizationScope.parse(scope.trim());
+			if (parsedAuthScope.isEmpty()) {
+				return Result.err(new IllegalArgumentException("Invalid scope"));
+			}
+			parsedAuthorizationScopes.add(parsedAuthScope.get());
 		}
-		return Optional.of(parsedAuthorizationScopes);
+		return Result.ok(Optional.of(parsedAuthorizationScopes));
 	}
 
 }

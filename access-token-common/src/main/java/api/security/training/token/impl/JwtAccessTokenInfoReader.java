@@ -28,7 +28,9 @@ public class JwtAccessTokenInfoReader implements AccessTokenInfoReader {
 			var scopes = claims.get("scopes");
 			List<AuthorizationScope> authScopes = scopes == null
 					? List.of()
-					: ScopesParser.parseAuthorizationScopes(scopes.toString()).orElse(List.of());
+					: ScopesParser.parseAuthorizationScopes(scopes.toString())
+							.map(v -> v.orElse(List.of()))
+							.getResult();
 			return TokenInfo.builder()
 					.isExpired(claims.getExpiration().before(currentDateProvider.get()))
 					.username(claims.getSubject())

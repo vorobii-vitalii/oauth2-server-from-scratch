@@ -13,15 +13,14 @@ import com.spencerwi.either.Either;
 import com.spencerwi.either.Result;
 
 import api.security.training.authorization.AuthorizationRedirectStrategy;
-import api.security.training.authorization.service.ObtainResourceOwnerConsentService;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.dto.ResourceOwnerAuthorizationRequest;
 import api.security.training.authorization.dto.ResourceOwnerConsentRequest;
+import api.security.training.authorization.service.ObtainResourceOwnerConsentService;
 import api.security.training.authorization.utils.URIParametersAppender;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.token.dto.AuthorizationScope;
-import api.security.training.token.exception.InvalidScopeException;
 import api.security.training.token.utils.ScopesParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,37 +70,35 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 					"Response type not supported"
 			)));
 		}
-		try {
-			var scopeList = ScopesParser.parseAuthorizationScopes(request.scope()).orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
-			var authorizationRequestSaveResult = Result.attempt(() -> authorizationRequestRepository.save(AuthorizationRequest.builder()
-					.id(uuidSupplier.get())
-					.clientId(clientId)
-					.scope(request.scope())
-					.state(state)
-					.responseType(request.responseType())
-					.username(request.username())
-					.redirectURL(redirectURI)
-					.build()));
-			if (authorizationRequestSaveResult.isErr()) {
-				log.warn("Error occurred on save of auth request to DB", authorizationRequestSaveResult.getException());
-				return Result.ok(Either.right(
-						createErrorRedirectionURI(redirectURI, state, "server_error", "Server error")));
-			}
-			log.info("Successfully inserted new authorization request {}", authorizationRequestSaveResult.getResult());
-			return Result.ok(Either.left(
-					ResourceOwnerConsentRequest.builder()
-							.clientName(clientRegistration.clientName())
-							.clientDescription(clientRegistration.clientDescription())
-							.scopeList(scopeList.stream().map(AuthorizationScope::getDisplayName).toList())
-							.authorizationRequestId(authorizationRequestSaveResult.getResult().id().toString())
-							.build()
-			));
-		}
-		catch (InvalidScopeException e) {
-			log.warn("Failed to parse scopes", e);
+		var scopeList = ScopesParser.parseAuthorizationScopes(request.scope()).map(v -> v.orElse(Arrays.asList(AuthorizationScope.values())));
+		if (scopeList.isErr()) {
+			log.warn("Failed to parse scopes");
 			return Result.ok(Either.right(
 					createErrorRedirectionURI(redirectURI, state, "invalid_scope", "Invalid scopes")));
 		}
+		var authorizationRequestSaveResult = Result.attempt(() -> authorizationRequestRepository.save(AuthorizationRequest.builder()
+				.id(uuidSupplier.get())
+				.clientId(clientId)
+				.scope(request.scope())
+				.state(state)
+				.responseType(request.responseType())
+				.username(request.username())
+				.redirectURL(redirectURI)
+				.build()));
+		if (authorizationRequestSaveResult.isErr()) {
+			log.warn("Error occurred on save of auth request to DB", authorizationRequestSaveResult.getException());
+			return Result.ok(Either.right(
+					createErrorRedirectionURI(redirectURI, state, "server_error", "Server error")));
+		}
+		log.info("Successfully inserted new authorization request {}", authorizationRequestSaveResult.getResult());
+		return Result.ok(Either.left(
+				ResourceOwnerConsentRequest.builder()
+						.clientName(clientRegistration.clientName())
+						.clientDescription(clientRegistration.clientDescription())
+						.scopeList(scopeList.getResult().stream().map(AuthorizationScope::getDisplayName).toList())
+						.authorizationRequestId(authorizationRequestSaveResult.getResult().id().toString())
+						.build()
+		));
 	}
 
 	private boolean isResponseTypeNotSupported(String responseType) {

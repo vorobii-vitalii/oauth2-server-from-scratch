@@ -28,7 +28,8 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 	public URI computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
 		log.info("Handling implicit redirect {}", authorizationRequest);
 		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
-				.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
+				.map(v -> v.orElse(List.of(AuthorizationScope.values())))
+				.getResult();
 		var generatedToken = accessTokenCreator.createToken(authorizationRequest.username(), scopesToUse);
 		var parameters = new HashMap<String, String>();
 		parameters.put("client_id", authorizationRequest.clientId().toString());

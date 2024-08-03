@@ -2,7 +2,6 @@ package api.security.training.authorization.service.impl;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.spencerwi.either.Result;
 

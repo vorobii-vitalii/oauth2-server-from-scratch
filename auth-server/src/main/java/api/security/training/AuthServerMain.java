@@ -22,6 +22,7 @@ import api.security.training.authorization.handler.RejectAuthorizationRequestHan
 import api.security.training.authorization.handler.TokenHandler;
 import api.security.training.authorization.service.impl.ApproveAuthorizationRequestServiceImpl;
 import api.security.training.authorization.service.impl.ObtainResourceOwnerConsentServiceImpl;
+import api.security.training.authorization.service.impl.RejectAuthorizationRequestServiceImpl;
 import api.security.training.authorization.utils.impl.URIParametersAppenderImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
@@ -122,7 +123,7 @@ public class AuthServerMain {
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(tokenInfoReader, requestTokenExtractor, new ApproveAuthorizationRequestServiceImpl(
 				authorizationRequestRepository, authorizationRedirectStrategies
 		)));
-		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
+		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(new RejectAuthorizationRequestServiceImpl(authorizationRequestRepository), tokenInfoReader, requestTokenExtractor));
 		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
 		app.post("/login", new LoginHandler(new UserLoginServiceImpl(userCredentialsChecker, tokenCreator), TOKEN_EXPIRATION_IN_MS));
 

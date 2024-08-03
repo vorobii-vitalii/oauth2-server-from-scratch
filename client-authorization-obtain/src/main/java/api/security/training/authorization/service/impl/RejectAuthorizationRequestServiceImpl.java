@@ -1,14 +1,14 @@
 package api.security.training.authorization.service.impl;
 
+import java.util.HashMap;
 import java.util.Objects;
-
-import org.apache.hc.core5.net.URIBuilder;
 
 import com.spencerwi.either.Result;
 
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.dto.RejectAuthorizationRequest;
 import api.security.training.authorization.service.RejectAuthorizationRequestService;
+import api.security.training.authorization.utils.URIParametersAppender;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RejectAuthorizationRequestServiceImpl implements RejectAuthorizationRequestService {
 	private final AuthorizationRequestRepository authorizationRequestRepository;
+	private final URIParametersAppender uriParametersAppender;
 
 	@SneakyThrows
 	@Override
@@ -31,12 +32,12 @@ public class RejectAuthorizationRequestServiceImpl implements RejectAuthorizatio
 			var authorizationRequest = authRequestOpt.get();
 			if (Objects.equals(authorizationRequest.username(), rejectAuthorizationRequest.validator())) {
 				log.info("Performing rejected redirect...");
-				URIBuilder uriBuilder = new URIBuilder(authorizationRequest.redirectURL())
-						.addParameter("error", "access_denied");
+				var parameters = new HashMap<String, String>();
+				parameters.put("error", "access_denied");
 				if (authorizationRequest.state() != null) {
-					uriBuilder.addParameter("state", authorizationRequest.state());
+					parameters.put("state", authorizationRequest.state());
 				}
-				return Result.ok(uriBuilder.build().toString());
+				return Result.ok(uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters));
 			} else {
 				return Result.err(new IllegalStateException("You tried to reject request not requested by you!"));
 			}

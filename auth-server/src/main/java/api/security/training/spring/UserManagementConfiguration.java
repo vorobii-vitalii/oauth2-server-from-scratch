@@ -69,8 +69,8 @@ public class UserManagementConfiguration {
 	}
 
 	@Bean
-	RejectAuthorizationRequestService rejectAuthorizationRequestService(AuthorizationRequestRepository authorizationRequestRepository){
-		return new RejectAuthorizationRequestServiceImpl(authorizationRequestRepository);
+	RejectAuthorizationRequestService rejectAuthorizationRequestService(AuthorizationRequestRepository authorizationRequestRepository) {
+		return new RejectAuthorizationRequestServiceImpl(authorizationRequestRepository, new URIParametersAppenderImpl());
 	}
 
 	@Bean

@@ -1,12 +1,12 @@
 package api.security.training.authorization.handler;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
-import org.apache.hc.core5.net.URIBuilder;
 
 import api.security.training.authorization.AuthorizationRedirectStrategy;
 import api.security.training.authorization.domain.AuthorizationRequest;
+import api.security.training.authorization.utils.URIParametersAppender;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.token.dto.AuthorizationScope;
 import api.security.training.token.utils.ScopesParser;
@@ -20,6 +20,7 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 	public static final String TOKEN_RESPONSE_TYPE = "token";
 
 	private final AccessTokenCreator accessTokenCreator;
+	private final URIParametersAppender uriParametersAppender;
 
 	@SneakyThrows
 	@Override
@@ -28,17 +29,17 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
 				.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
 		var generatedToken = accessTokenCreator.createToken(authorizationRequest.username(), scopesToUse);
-		var uriBuilder = new URIBuilder(authorizationRequest.redirectURL())
-				.addParameter("client_id", authorizationRequest.clientId().toString())
-				.addParameter("access_token", generatedToken)
-				.addParameter("token_type", "bearer");
+		var parameters = new HashMap<String, String>();
+		parameters.put("client_id", authorizationRequest.clientId().toString());
+		parameters.put("access_token", generatedToken);
+		parameters.put("token_type", "bearer");
 		if (authorizationRequest.state() != null) {
-			uriBuilder.addParameter("state", authorizationRequest.state());
+			parameters.put("state", authorizationRequest.state());
 		}
 		if (authorizationRequest.scope() != null) {
-			uriBuilder.addParameter("scope", authorizationRequest.scope());
+			parameters.put("scope", authorizationRequest.scope());
 		}
-		return uriBuilder.build().toString();
+		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters);
 	}
 
 	@Override

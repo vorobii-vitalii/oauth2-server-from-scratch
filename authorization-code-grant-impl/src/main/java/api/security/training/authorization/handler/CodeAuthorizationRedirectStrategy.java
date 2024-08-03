@@ -1,14 +1,14 @@
 package api.security.training.authorization.handler;
 
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.Supplier;
-
-import org.apache.hc.core5.net.URIBuilder;
 
 import api.security.training.authorization.AuthorizationRedirectStrategy;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.domain.ClientAuthenticationCode;
+import api.security.training.authorization.utils.URIParametersAppender;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,7 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 
 	private final ClientAuthenticationCodeRepository clientAuthenticationCodeRepository;
 	private final Supplier<UUID> uuidSupplier;
+	private final URIParametersAppender uriParametersAppender;
 
 	@SneakyThrows
 	@Override
@@ -33,12 +34,12 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 				.username(authorizationRequest.username())
 				.build();
 		clientAuthenticationCodeRepository.save(clientAuthenticationCode);
-		var uriBuilder = new URIBuilder(authorizationRequest.redirectURL())
-				.addParameter("code", clientAuthenticationCode.code().toString());
+		var parameters = new HashMap<String, String>();
+		parameters.put("code", clientAuthenticationCode.code().toString());
 		if (authorizationRequest.state() != null) {
-			uriBuilder.addParameter("state", authorizationRequest.state());
+			parameters.put("state", authorizationRequest.state());
 		}
-		return uriBuilder.build().toString();
+		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters);
 	}
 
 	@Override

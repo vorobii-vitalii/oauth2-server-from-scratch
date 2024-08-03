@@ -11,6 +11,7 @@ import api.security.training.authorization.dao.ClientAuthenticationCodeRepositor
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.handler.AuthorizationCodeTokenRequestHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectStrategy;
+import api.security.training.authorization.utils.impl.URIParametersAppenderImpl;
 import api.security.training.token.AccessTokenCreator;
 
 @Configuration
@@ -35,7 +36,7 @@ public class AuthenticationCodeGrantConfiguration {
 	CodeAuthorizationRedirectStrategy codeAuthorizationRedirectStrategy(
 			ClientAuthenticationCodeRepository clientAuthenticationCodeRepository
 	) {
-		return new CodeAuthorizationRedirectStrategy(clientAuthenticationCodeRepository, UUID::randomUUID);
+		return new CodeAuthorizationRedirectStrategy(clientAuthenticationCodeRepository, UUID::randomUUID, new URIParametersAppenderImpl());
 	}
 
 }

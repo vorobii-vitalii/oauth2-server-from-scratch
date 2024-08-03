@@ -35,29 +35,29 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 	private final URIParametersAppender uriParametersAppender;
 
 	@Override
-	public Either<ResourceOwnerConsentRequest, Either<String, String>> obtainResourceOwnerConsent(ResourceOwnerAuthorizationRequest request) {
+	public Result<Either<ResourceOwnerConsentRequest, String>> obtainResourceOwnerConsent(ResourceOwnerAuthorizationRequest request) {
 		log.info("Handling resource owner auth request = {}", request);
 		if (Objects.isNull(request.clientId())) {
 			log.warn("Client id is null...");
-			return Either.right(Either.left("Client id is null"));
+			return Result.err(new IllegalArgumentException("Client id is null"));
 		}
 		var clientId = UUID.fromString(request.clientId());
 		var foundClientRegistration = clientRegistrationRepository.findById(clientId);
 		if (foundClientRegistration.isEmpty()) {
 			log.warn("Client not found...");
-			return Either.right(Either.left("Client not found"));
+			return Result.err(new IllegalArgumentException("Client not found"));
 		}
 		var clientRegistration = foundClientRegistration.get();
 		// Compare redirect_uri with stored if present
 		var redirectURI = coalesce(request.redirectURI(), clientRegistration.redirectURL());
 		if (!Objects.equals(redirectURI, clientRegistration.redirectURL())) {
 			log.warn("Redirect URI specified by client is wrong! {} != {}", redirectURI, clientRegistration.redirectURL());
-			return Either.right(Either.left("Wrong redirect_uri"));
+			return Result.err(new IllegalArgumentException("Wrong redirect_uri"));
 		}
 		var state = request.state();
 		if (Objects.isNull(request.responseType())) {
 			log.warn("Response type not specified");
-			return Either.right(Either.right(createErrorRedirectionURI(redirectURI, state,
+			return Result.ok(Either.right(createErrorRedirectionURI(redirectURI, state,
 					"invalid_request",
 					"Response type not specified"
 			)));
@@ -65,7 +65,7 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 		// Check if response type is supported by any strategy
 		if (isResponseTypeNotSupported(request.responseType())) {
 			log.warn("Response type {} not supported", request.responseType());
-			return Either.right(Either.right(createErrorRedirectionURI(redirectURI, state,
+			return Result.ok(Either.right(createErrorRedirectionURI(redirectURI, state,
 					"unsupported_response_type",
 					"Response type not supported"
 			)));
@@ -83,20 +83,22 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 					.build()));
 			if (authorizationRequestSaveResult.isErr()) {
 				log.warn("Error occurred on save of auth request to DB", authorizationRequestSaveResult.getException());
-				return Either.right(Either.right(
+				return Result.ok(Either.right(
 						createErrorRedirectionURI(redirectURI, state, "server_error", "Server error")));
 			}
 			log.info("Successfully inserted new authorization request {}", authorizationRequestSaveResult.getResult());
-			return Either.left(ResourceOwnerConsentRequest.builder()
-					.clientName(clientRegistration.clientName())
-					.clientDescription(clientRegistration.clientDescription())
-					.scopeList(scopeList.stream().map(AuthorizationScope::getDisplayName).toList())
-					.authorizationRequestId(authorizationRequestSaveResult.getResult().id().toString())
-					.build());
+			return Result.ok(Either.left(
+					ResourceOwnerConsentRequest.builder()
+							.clientName(clientRegistration.clientName())
+							.clientDescription(clientRegistration.clientDescription())
+							.scopeList(scopeList.stream().map(AuthorizationScope::getDisplayName).toList())
+							.authorizationRequestId(authorizationRequestSaveResult.getResult().id().toString())
+							.build()
+			));
 		}
 		catch (InvalidScopeException e) {
 			log.warn("Failed to parse scopes", e);
-			return Either.right(Either.right(
+			return Result.ok(Either.right(
 					createErrorRedirectionURI(redirectURI, state, "invalid_scope", "Invalid scopes")));
 		}
 	}

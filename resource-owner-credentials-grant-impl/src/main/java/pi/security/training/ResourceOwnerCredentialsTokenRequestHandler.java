@@ -13,7 +13,6 @@ import api.security.training.api.dto.TokenResponse;
 import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.domain.ClientRefreshToken;
-import api.security.training.authorization.dto.ClientCredentials;
 import api.security.training.authorization.dto.TokenGenerationError;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.token.dto.AuthorizationScope;
@@ -41,7 +40,7 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 
 	@SneakyThrows
 	@Override
-	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, ClientCredentials clientCredentials) {
+	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, String clientId) {
 		var username = tokenRequest.username();
 		boolean areCredentialsCorrect = userCredentialsChecker.areCredentialsCorrect(username, tokenRequest.password());
 		if (areCredentialsCorrect) {
@@ -49,7 +48,7 @@ public class ResourceOwnerCredentialsTokenRequestHandler implements TokenRequest
 			var authorizationScopes = ScopesParser.parseAuthorizationScopes(tokenRequest.scope())
 					.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
 			var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
-					.clientId(UUID.fromString(clientCredentials.clientId()))
+					.clientId(UUID.fromString(clientId))
 					.createdAt(Instant.now(clock))
 					.refreshToken(uuidSupplier.get())
 					.scope(tokenRequest.scope())

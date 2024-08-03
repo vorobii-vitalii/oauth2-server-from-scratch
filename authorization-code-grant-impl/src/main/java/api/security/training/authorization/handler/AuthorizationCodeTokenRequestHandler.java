@@ -14,7 +14,6 @@ import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.domain.ClientRefreshToken;
-import api.security.training.authorization.dto.ClientCredentials;
 import api.security.training.authorization.dto.TokenGenerationError;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.token.dto.AuthorizationScope;
@@ -41,7 +40,7 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 
 	@SneakyThrows
 	@Override
-	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, ClientCredentials clientCredentials) {
+	public Either<TokenResponse, TokenGenerationError> handleTokenRequest(TokenRequest tokenRequest, String clientId) {
 		if (tokenRequest.code() == null) {
 			log.warn("Code not provided");
 			return Either.right(new TokenGenerationError("Code is absent"));
@@ -54,7 +53,7 @@ public class AuthorizationCodeTokenRequestHandler implements TokenRequestHandler
 		}
 		var clientAuthenticationCode = clientAuthCodeOpt.get();
 		var clientRefreshToken = clientRefreshTokenRepository.save(ClientRefreshToken.builder()
-				.clientId(UUID.fromString(clientCredentials.clientId()))
+				.clientId(UUID.fromString(clientId))
 				.createdAt(Instant.now(clock))
 				.refreshToken(uuidSupplier.get())
 				.scope(clientAuthenticationCode.scope())

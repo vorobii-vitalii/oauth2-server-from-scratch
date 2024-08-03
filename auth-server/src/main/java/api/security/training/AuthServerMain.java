@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
+import api.security.training.authorization.service.impl.TokenRequestServiceImpl;
 import api.security.training.handlers.ApproveAuthorizationRequestHandler;
 import api.security.training.authorization.handler.AuthorizationCodeTokenRequestHandler;
 import api.security.training.handlers.AuthorizationHandler;
@@ -101,23 +102,25 @@ public class AuthServerMain {
 		)));
 		var userCredentialsChecker = new UserCredentialsCheckerImpl(userRepository, passwordService);
 		app.post("/token", new TokenHandler(
-				List.of(
-						new AuthorizationCodeTokenRequestHandler(
-								clientAuthenticationCodeRepository,
-								UUID::randomUUID,
-								clientRefreshTokenRepository,
-								Clock.systemUTC(),
-								tokenCreator
-						),
-						new ResourceOwnerCredentialsTokenRequestHandler(
-								userCredentialsChecker,
-								tokenCreator,
-								UUID::randomUUID,
-								clientRefreshTokenRepository,
-								Clock.systemUTC()
+				new TokenRequestServiceImpl(
+						clientRegistrationRepository,
+						List.of(
+								new AuthorizationCodeTokenRequestHandler(
+										clientAuthenticationCodeRepository,
+										UUID::randomUUID,
+										clientRefreshTokenRepository,
+										Clock.systemUTC(),
+										tokenCreator
+								),
+								new ResourceOwnerCredentialsTokenRequestHandler(
+										userCredentialsChecker,
+										tokenCreator,
+										UUID::randomUUID,
+										clientRefreshTokenRepository,
+										Clock.systemUTC()
+								)
 						)
-				),
-				clientRegistrationRepository
+				)
 		));
 
 		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(tokenInfoReader, requestTokenExtractor, new ApproveAuthorizationRequestServiceImpl(

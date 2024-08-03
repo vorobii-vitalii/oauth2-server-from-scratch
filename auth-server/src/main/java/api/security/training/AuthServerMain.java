@@ -20,6 +20,8 @@ import api.security.training.authorization.handler.CodeAuthorizationRedirectStra
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
+import api.security.training.authorization.impl.ObtainResourceOwnerConsentServiceImpl;
+import api.security.training.authorization.utils.impl.URIParametersAppenderImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
 import api.security.training.client_registration.service.impl.ClientRegistrationServiceImpl;
@@ -88,7 +90,13 @@ public class AuthServerMain {
 		);
 		var passwordService = new NaivePasswordService();
 
-		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, authorizationRequestRepository, clientRegistrationRepository, UUID::randomUUID, authorizationRedirectStrategies));
+		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, new ObtainResourceOwnerConsentServiceImpl(
+				authorizationRequestRepository,
+				clientRegistrationRepository,
+				UUID::randomUUID,
+				authorizationRedirectStrategies,
+				new URIParametersAppenderImpl()
+		)));
 		var userCredentialsChecker = new UserCredentialsCheckerImpl(userRepository, passwordService);
 		app.post("/token", new TokenHandler(
 				List.of(

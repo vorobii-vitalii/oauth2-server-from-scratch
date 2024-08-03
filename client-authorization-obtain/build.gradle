@@ -20,9 +20,15 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.4-beta1'
+
     implementation 'com.spencerwi:Either.java:2.9.0'
 
     implementation project(':auth-server-api')
+    implementation project(':access-token-common')
+    implementation project(':client-registration')
+    implementation project(':users-authentication')
+    implementation project(':auth-grant-common')
 }
 
 test {

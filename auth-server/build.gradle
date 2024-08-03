@@ -57,6 +57,7 @@ dependencies {
     implementation project(':client-registration')
     implementation project(':users-authentication')
     implementation project(':auth-grant-common')
+    implementation project(':client-authorization-obtain')
 
     // Grants implementations
     implementation project(':resource-owner-credentials-grant-impl')

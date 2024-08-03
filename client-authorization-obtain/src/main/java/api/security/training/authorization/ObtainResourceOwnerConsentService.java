@@ -6,5 +6,5 @@ import api.security.training.authorization.dto.ResourceOwnerAuthorizationRequest
 import api.security.training.authorization.dto.ResourceOwnerConsentRequest;
 
 public interface ObtainResourceOwnerConsentService {
-	Either<ResourceOwnerConsentRequest, String> obtainResourceOwnerConsent(ResourceOwnerAuthorizationRequest request);
+	Either<ResourceOwnerConsentRequest, Either<String, String>> obtainResourceOwnerConsent(ResourceOwnerAuthorizationRequest request);
 }

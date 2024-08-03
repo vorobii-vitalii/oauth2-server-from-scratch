@@ -7,6 +7,7 @@ public record ResourceOwnerAuthorizationRequest(
 	String responseType,
 	String clientId,
 	String scope,
+	String redirectURI,
 	String state,
 	String username
 ) {

@@ -20,7 +20,7 @@ import api.security.training.handlers.AuthorizationHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
 import api.security.training.handlers.RejectAuthorizationRequestHandler;
-import api.security.training.authorization.handler.TokenHandler;
+import api.security.training.handlers.TokenHandler;
 import api.security.training.authorization.service.impl.ApproveAuthorizationRequestServiceImpl;
 import api.security.training.authorization.service.impl.ObtainResourceOwnerConsentServiceImpl;
 import api.security.training.authorization.service.impl.RejectAuthorizationRequestServiceImpl;

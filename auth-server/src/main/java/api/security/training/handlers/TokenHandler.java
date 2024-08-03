@@ -1,4 +1,4 @@
-package api.security.training.authorization.handler;
+package api.security.training.handlers;
 
 import java.util.List;
 

@@ -7,11 +7,11 @@ import org.jetbrains.annotations.NotNull;
 
 import com.spencerwi.either.Either;
 
-import api.security.training.RequestTokenExtractor;
-import api.security.training.authorization.service.ObtainResourceOwnerConsentService;
 import api.security.training.authorization.dto.ResourceOwnerAuthorizationRequest;
 import api.security.training.authorization.dto.ResourceOwnerConsentRequest;
-import api.security.training.token.AccessTokenInfoReader;
+import api.security.training.authorization.service.ObtainResourceOwnerConsentService;
+import api.security.training.params.RequestParameterService;
+import api.security.training.params.RequestParameters;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -27,14 +27,12 @@ public class AuthorizationHandler implements Handler {
 	public static final String STATE = "state";
 	public static final String REDIRECT_URI = "redirect_uri";
 
-	private final RequestTokenExtractor requestTokenExtractor;
-	private final AccessTokenInfoReader accessTokenInfoReader;
+	private final RequestParameterService requestParameterService;
 	private final ObtainResourceOwnerConsentService obtainResourceOwnerConsentService;
 
 	@Override
 	public void handle(@NotNull Context ctx) {
-		var token = requestTokenExtractor.extractTokenFromRequest(ctx).orElseThrow();
-		var username = accessTokenInfoReader.readTokenInfo(token).username();
+		var username = requestParameterService.get(ctx, RequestParameters.USERNAME);
 		var resourceOwnerAuthorizationRequest = ResourceOwnerAuthorizationRequest.builder()
 				.clientId(ctx.queryParam(CLIENT_ID))
 				.redirectURI(ctx.queryParam(REDIRECT_URI))

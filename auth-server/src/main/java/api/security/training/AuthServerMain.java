@@ -13,26 +13,32 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import api.security.training.api.dto.RegisterClientRequest;
-import api.security.training.authorization.service.impl.TokenRequestServiceImpl;
-import api.security.training.handlers.ApproveAuthorizationRequestHandler;
+import api.security.training.authorization.AuthorizationRedirectStrategy;
+import api.security.training.authorization.dao.AuthorizationRequestRepository;
+import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
+import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.authorization.handler.AuthorizationCodeTokenRequestHandler;
-import api.security.training.handlers.AuthorizationHandler;
 import api.security.training.authorization.handler.CodeAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
-import api.security.training.handlers.RejectAuthorizationRequestHandler;
-import api.security.training.handlers.TokenHandler;
 import api.security.training.authorization.service.impl.ApproveAuthorizationRequestServiceImpl;
 import api.security.training.authorization.service.impl.ObtainResourceOwnerConsentServiceImpl;
 import api.security.training.authorization.service.impl.RejectAuthorizationRequestServiceImpl;
+import api.security.training.authorization.service.impl.TokenRequestServiceImpl;
 import api.security.training.authorization.utils.impl.URIParametersAppenderImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
 import api.security.training.client_registration.service.impl.ClientRegistrationServiceImpl;
 import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.filters.UserAuthenticationFilter;
+import api.security.training.filters.UserInfoFilter;
+import api.security.training.handlers.ApproveAuthorizationRequestHandler;
+import api.security.training.handlers.AuthorizationHandler;
 import api.security.training.handlers.ClientRegistrationHandler;
 import api.security.training.handlers.LoginHandler;
+import api.security.training.handlers.RejectAuthorizationRequestHandler;
+import api.security.training.handlers.TokenHandler;
 import api.security.training.handlers.UserRegistrationHandler;
+import api.security.training.params.impl.RequestParameterServiceImpl;
 import api.security.training.spring.RootConfig;
 import api.security.training.token.impl.JwtAccessTokenCreator;
 import api.security.training.token.impl.JwtAccessTokenInfoReader;
@@ -43,10 +49,6 @@ import api.security.training.users.password.impl.NaivePasswordService;
 import api.security.training.users.registration.service.impl.UserRegistrationServiceImpl;
 import api.security.training.validation.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
-import api.security.training.authorization.AuthorizationRedirectStrategy;
-import api.security.training.authorization.dao.AuthorizationRequestRepository;
-import api.security.training.authorization.dao.ClientAuthenticationCodeRepository;
-import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
@@ -84,8 +86,11 @@ public class AuthServerMain {
 		var tokenCreator = new JwtAccessTokenCreator(signKey, Date::new, TOKEN_EXPIRATION_IN_MS);
 		var tokenInfoReader = new JwtAccessTokenInfoReader(signKey, Date::new);
 		var requestTokenExtractor = new CookieRequestTokenExtractor();
+		var requestParameterService = new RequestParameterServiceImpl();
 
-		app.before("/authorize", new UserAuthenticationFilter(tokenInfoReader, requestTokenExtractor));
+		app.before(new UserInfoFilter(tokenInfoReader, requestTokenExtractor, requestParameterService));
+
+		app.before("/authorize", new UserAuthenticationFilter(requestParameterService));
 
 		List<AuthorizationRedirectStrategy> authorizationRedirectStrategies = List.of(
 				new ImplicitAuthorizationRedirectStrategy(tokenCreator),
@@ -93,13 +98,14 @@ public class AuthServerMain {
 		);
 		var passwordService = new NaivePasswordService();
 
-		app.get("/authorize", new AuthorizationHandler(requestTokenExtractor, tokenInfoReader, new ObtainResourceOwnerConsentServiceImpl(
+		var obtainResourceOwnerConsentService = new ObtainResourceOwnerConsentServiceImpl(
 				authorizationRequestRepository,
 				clientRegistrationRepository,
 				UUID::randomUUID,
 				authorizationRedirectStrategies,
 				new URIParametersAppenderImpl()
-		)));
+		);
+		app.get("/authorize", new AuthorizationHandler(requestParameterService, obtainResourceOwnerConsentService));
 		var userCredentialsChecker = new UserCredentialsCheckerImpl(userRepository, passwordService);
 		app.post("/token", new TokenHandler(
 				new TokenRequestServiceImpl(
@@ -123,10 +129,10 @@ public class AuthServerMain {
 				)
 		));
 
-		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(tokenInfoReader, requestTokenExtractor, new ApproveAuthorizationRequestServiceImpl(
+		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(requestParameterService, new ApproveAuthorizationRequestServiceImpl(
 				authorizationRequestRepository, authorizationRedirectStrategies
 		)));
-		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(new RejectAuthorizationRequestServiceImpl(authorizationRequestRepository), tokenInfoReader, requestTokenExtractor));
+		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(new RejectAuthorizationRequestServiceImpl(authorizationRequestRepository), requestParameterService));
 		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
 		app.post("/login", new LoginHandler(new UserLoginServiceImpl(userCredentialsChecker, tokenCreator), TOKEN_EXPIRATION_IN_MS));
 

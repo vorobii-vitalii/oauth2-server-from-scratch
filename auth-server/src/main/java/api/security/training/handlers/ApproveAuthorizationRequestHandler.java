@@ -6,10 +6,10 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
-import api.security.training.RequestTokenExtractor;
 import api.security.training.authorization.dto.ApproveAuthorizationRequest;
 import api.security.training.authorization.service.ApproveAuthorizationRequestService;
-import api.security.training.token.AccessTokenInfoReader;
+import api.security.training.params.RequestParameterService;
+import api.security.training.params.RequestParameters;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -21,14 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ApproveAuthorizationRequestHandler implements Handler {
 	private static final String AUTH_REQUEST_ID = "authRequestId";
 
-	private final AccessTokenInfoReader accessTokenInfoReader;
-	private final RequestTokenExtractor requestTokenExtractor;
+	private final RequestParameterService requestParameterService;
 	private final ApproveAuthorizationRequestService approveAuthorizationRequestService;
 
 	@Override
 	public void handle(@NotNull Context ctx) {
-		var token = requestTokenExtractor.extractTokenFromRequest(ctx).orElseThrow();
-		var actualUsername = accessTokenInfoReader.readTokenInfo(token).username();
+		var actualUsername = requestParameterService.get(ctx, RequestParameters.USERNAME);
 		var authRequestId = UUID.fromString(ctx.pathParam(AUTH_REQUEST_ID));
 
 		var approveResult = approveAuthorizationRequestService.approveAuthorizationRequest(ApproveAuthorizationRequest.builder()

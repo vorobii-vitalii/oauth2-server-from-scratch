@@ -2,10 +2,9 @@ package api.security.training.filters;
 
 import org.jetbrains.annotations.NotNull;
 
-import api.security.training.RequestTokenExtractor;
-import api.security.training.exception.AuthenticationRequiredException;
-import api.security.training.params.RequestParameterService;
-import api.security.training.params.RequestParameters;
+import api.security.training.request.RequestTokenExtractor;
+import api.security.training.request.RequestParameterService;
+import api.security.training.request.RequestParameters;
 import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

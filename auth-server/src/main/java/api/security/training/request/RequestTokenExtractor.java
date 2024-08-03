@@ -1,4 +1,4 @@
-package api.security.training;
+package api.security.training.request;
 
 import java.util.Optional;
 

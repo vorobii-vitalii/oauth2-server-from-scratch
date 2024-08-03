@@ -1,4 +1,4 @@
-package api.security.training.params;
+package api.security.training.request;
 
 import lombok.experimental.UtilityClass;
 

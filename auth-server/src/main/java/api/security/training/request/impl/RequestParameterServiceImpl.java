@@ -1,7 +1,7 @@
-package api.security.training.params.impl;
+package api.security.training.request.impl;
 
-import api.security.training.params.RequestParameter;
-import api.security.training.params.RequestParameterService;
+import api.security.training.request.RequestParameter;
+import api.security.training.request.RequestParameterService;
 import io.javalin.http.Context;
 
 public class RequestParameterServiceImpl implements RequestParameterService {

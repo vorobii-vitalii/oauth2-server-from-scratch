@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import api.security.training.authorization.dto.RejectAuthorizationRequest;
 import api.security.training.authorization.service.RejectAuthorizationRequestService;
-import api.security.training.params.RequestParameterService;
-import api.security.training.params.RequestParameters;
+import api.security.training.request.RequestParameterService;
+import api.security.training.request.RequestParameters;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;

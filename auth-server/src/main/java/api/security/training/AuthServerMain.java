@@ -20,7 +20,8 @@ import api.security.training.authorization.handler.CodeAuthorizationRedirectStra
 import api.security.training.authorization.handler.ImplicitAuthorizationRedirectStrategy;
 import api.security.training.authorization.handler.RejectAuthorizationRequestHandler;
 import api.security.training.authorization.handler.TokenHandler;
-import api.security.training.authorization.impl.ObtainResourceOwnerConsentServiceImpl;
+import api.security.training.authorization.service.impl.ApproveAuthorizationRequestServiceImpl;
+import api.security.training.authorization.service.impl.ObtainResourceOwnerConsentServiceImpl;
 import api.security.training.authorization.utils.impl.URIParametersAppenderImpl;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.secret.impl.ClientSecretSupplierImpl;
@@ -118,7 +119,9 @@ public class AuthServerMain {
 				clientRegistrationRepository
 		));
 
-		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor, authorizationRedirectStrategies));
+		app.post("/approve/{authRequestId}", new ApproveAuthorizationRequestHandler(tokenInfoReader, requestTokenExtractor, new ApproveAuthorizationRequestServiceImpl(
+				authorizationRequestRepository, authorizationRedirectStrategies
+		)));
 		app.post("/reject/{authRequestId}", new RejectAuthorizationRequestHandler(authorizationRequestRepository, tokenInfoReader, requestTokenExtractor));
 		app.post("/register", new UserRegistrationHandler(new UserRegistrationServiceImpl(passwordService, userRepository, UUID::randomUUID)));
 		app.post("/login", new LoginHandler(new UserLoginServiceImpl(userCredentialsChecker, tokenCreator), TOKEN_EXPIRATION_IN_MS));

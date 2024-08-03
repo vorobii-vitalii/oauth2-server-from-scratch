@@ -1,4 +1,4 @@
-package api.security.training.authorization.impl;
+package api.security.training.authorization.service.impl;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import com.spencerwi.either.Either;
 import com.spencerwi.either.Result;
 
 import api.security.training.authorization.AuthorizationRedirectStrategy;
-import api.security.training.authorization.ObtainResourceOwnerConsentService;
+import api.security.training.authorization.service.ObtainResourceOwnerConsentService;
 import api.security.training.authorization.dao.AuthorizationRequestRepository;
 import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.dto.ResourceOwnerAuthorizationRequest;

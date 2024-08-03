@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import com.spencerwi.either.Either;
 
 import api.security.training.RequestTokenExtractor;
-import api.security.training.authorization.ObtainResourceOwnerConsentService;
+import api.security.training.authorization.service.ObtainResourceOwnerConsentService;
 import api.security.training.authorization.dto.ResourceOwnerAuthorizationRequest;
 import api.security.training.authorization.dto.ResourceOwnerConsentRequest;
 import api.security.training.token.AccessTokenInfoReader;

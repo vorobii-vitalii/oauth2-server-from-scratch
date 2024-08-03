@@ -1,4 +1,4 @@
-package api.security.training.authorization;
+package api.security.training.authorization.service;
 
 import com.spencerwi.either.Either;
 

@@ -25,7 +25,7 @@ public class JwtAccessTokenInfoReader implements AccessTokenInfoReader {
 	public TokenInfo readTokenInfo(String token) {
 		try {
 			var claims = extractAllClaims(token);
-			final Object scopes = claims.get("scopes");
+			var scopes = claims.get("scopes");
 			List<AuthorizationScope> authScopes = scopes == null
 					? List.of()
 					: ScopesParser.parseAuthorizationScopes(scopes.toString()).orElse(List.of());

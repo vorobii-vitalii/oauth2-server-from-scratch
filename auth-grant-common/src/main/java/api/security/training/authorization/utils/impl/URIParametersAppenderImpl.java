@@ -12,7 +12,7 @@ public class URIParametersAppenderImpl implements URIParametersAppender {
 
 	@SneakyThrows
 	@Override
-	public URI appendParameters(String originalURI, Map<String, String> parameters) {
+	public URI appendParameters(URI originalURI, Map<String, String> parameters) {
 		var uriBuilder = new URIBuilder(originalURI);
 		parameters.forEach(uriBuilder::addParameter);
 		return uriBuilder.build();

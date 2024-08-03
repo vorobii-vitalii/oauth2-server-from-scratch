@@ -38,7 +38,7 @@ public class RejectAuthorizationRequestServiceImpl implements RejectAuthorizatio
 				if (authorizationRequest.state() != null) {
 					parameters.put("state", authorizationRequest.state());
 				}
-				return Result.ok(uriParametersAppender.appendParameters(authorizationRequest.redirectURL().toString(), parameters));
+				return Result.ok(uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters));
 			} else {
 				return Result.err(new IllegalStateException("You tried to reject request not requested by you!"));
 			}

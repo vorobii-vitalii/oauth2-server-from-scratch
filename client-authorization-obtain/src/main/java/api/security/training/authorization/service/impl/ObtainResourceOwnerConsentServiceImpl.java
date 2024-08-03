@@ -120,7 +120,7 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 		}
 		parameters.put("error", errorType);
 		parameters.put("error_description", errorDescription);
-		return uriParametersAppender.appendParameters(originalURI.toString(), parameters);
+		return uriParametersAppender.appendParameters(originalURI, parameters);
 	}
 
 	@SafeVarargs

@@ -4,5 +4,5 @@ import java.net.URI;
 import java.util.Map;
 
 public interface URIParametersAppender {
-	URI appendParameters(String originalURI, Map<String, String> parameters);
+	URI appendParameters(URI originalURI, Map<String, String> parameters);
 }

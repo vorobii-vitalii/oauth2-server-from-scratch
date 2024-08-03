@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import api.security.training.api.dto.TokenRequest;
 import api.security.training.authorization.dto.ClientCredentials;
 import api.security.training.authorization.service.TokenRequestService;
+import api.security.training.utils.ResultProcessor;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -19,7 +20,7 @@ public class TokenHandler implements Handler {
 	private final TokenRequestService tokenRequestService;
 
 	@Override
-	public void handle(@NotNull Context ctx) {
+	public void handle(@NotNull Context ctx) throws Exception {
 		var tokenRequest = ctx.bodyAsClass(TokenRequest.class);
 		var basicAuthCredentials = ctx.basicAuthCredentials();
 		if (basicAuthCredentials == null) {
@@ -32,13 +33,9 @@ public class TokenHandler implements Handler {
 				.clientId(basicAuthCredentials.getUsername())
 				.clientSecret(basicAuthCredentials.getPassword())
 				.build();
-		var tokenResult = tokenRequestService.handleTokenRequest(tokenRequest, clientCredentials);
-		if (tokenResult.isOk()) {
+		ResultProcessor.processResult(tokenRequestService.handleTokenRequest(tokenRequest, clientCredentials), v -> {
+			ctx.json(v);
 			ctx.status(HttpStatus.OK);
-			ctx.json(tokenResult.getResult());
-		} else {
-			ctx.status(HttpStatus.BAD_REQUEST);
-			ctx.json(tokenResult.getException().getMessage());
-		}
+		});
 	}
 }

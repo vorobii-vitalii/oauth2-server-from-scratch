@@ -1,7 +1,8 @@
-package api.security.training.validation;
+package api.security.training.handlers;
 
 import org.jetbrains.annotations.NotNull;
 
+import api.security.training.validation.ValidationErrorResponseFactory;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;

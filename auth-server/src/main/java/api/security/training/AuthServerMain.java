@@ -47,7 +47,7 @@ import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.service.impl.UserCredentialsCheckerImpl;
 import api.security.training.users.password.impl.NaivePasswordService;
 import api.security.training.users.registration.service.impl.UserRegistrationServiceImpl;
-import api.security.training.validation.ValidatingBodyHandler;
+import api.security.training.handlers.ValidatingBodyHandler;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;

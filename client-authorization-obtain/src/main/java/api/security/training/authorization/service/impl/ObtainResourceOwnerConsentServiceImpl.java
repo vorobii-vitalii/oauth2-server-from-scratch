@@ -1,5 +1,6 @@
 package api.security.training.authorization.service.impl;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 	private final URIParametersAppender uriParametersAppender;
 
 	@Override
-	public Result<Either<ResourceOwnerConsentRequest, String>> obtainResourceOwnerConsent(ResourceOwnerAuthorizationRequest request) {
+	public Result<Either<ResourceOwnerConsentRequest, URI>> obtainResourceOwnerConsent(ResourceOwnerAuthorizationRequest request) {
 		log.info("Handling resource owner auth request = {}", request);
 		if (Objects.isNull(request.clientId())) {
 			log.warn("Client id is null...");
@@ -112,14 +113,14 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 	 * @param state - state (nullable)
 	 * @return Redirection with error parameters
 	 */
-	private String createErrorRedirectionURI(String originalURI, String state, String errorType, String errorDescription) {
+	private URI createErrorRedirectionURI(String originalURI, String state, String errorType, String errorDescription) {
 		Map<String, String> parameters = new HashMap<>();
 		if (state != null) {
 			parameters.put("state", state);
 		}
 		parameters.put("error", errorType);
 		parameters.put("error_description", errorDescription);
-		return uriParametersAppender.appendParameters(originalURI, parameters).toString();
+		return uriParametersAppender.appendParameters(originalURI, parameters);
 	}
 
 	@SafeVarargs

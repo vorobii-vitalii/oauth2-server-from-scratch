@@ -51,7 +51,7 @@ public class AuthorizationHandler implements Handler {
 						));
 						ctx.status(HttpStatus.OK);
 					} else {
-						ctx.redirect(result.getRight());
+						ctx.redirect(result.getRight().toString());
 					}
 				});
 	}

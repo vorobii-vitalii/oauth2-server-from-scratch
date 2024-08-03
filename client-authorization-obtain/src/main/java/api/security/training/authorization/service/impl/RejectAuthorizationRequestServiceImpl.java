@@ -11,7 +11,6 @@ import api.security.training.authorization.dto.RejectAuthorizationRequest;
 import api.security.training.authorization.service.RejectAuthorizationRequestService;
 import api.security.training.authorization.utils.URIParametersAppender;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
@@ -20,7 +19,6 @@ public class RejectAuthorizationRequestServiceImpl implements RejectAuthorizatio
 	private final AuthorizationRequestRepository authorizationRequestRepository;
 	private final URIParametersAppender uriParametersAppender;
 
-	@SneakyThrows
 	@Override
 	public Result<URI> rejectAuthorizationRequest(RejectAuthorizationRequest rejectAuthorizationRequest) {
 		var authRequestId = rejectAuthorizationRequest.authorizationRequestId();

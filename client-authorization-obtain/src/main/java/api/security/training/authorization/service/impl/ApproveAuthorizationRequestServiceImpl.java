@@ -1,5 +1,6 @@
 package api.security.training.authorization.service.impl;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public class ApproveAuthorizationRequestServiceImpl implements ApproveAuthorizat
 	private final List<AuthorizationRedirectStrategy> authorizationRedirectStrategies;
 
 	@Override
-	public Result<String> approveAuthorizationRequest(ApproveAuthorizationRequest request) {
+	public Result<URI> approveAuthorizationRequest(ApproveAuthorizationRequest request) {
 		var authRequestId = request.authorizationRequestId();
 		log.info("Checking whether authentication request by id = {} exists", authRequestId);
 		var authRequestOpt = authorizationRequestRepository.findById(authRequestId);

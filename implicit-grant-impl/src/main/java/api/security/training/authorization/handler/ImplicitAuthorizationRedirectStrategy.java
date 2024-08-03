@@ -1,5 +1,6 @@
 package api.security.training.authorization.handler;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,7 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 
 	@SneakyThrows
 	@Override
-	public String computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
+	public URI computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
 		log.info("Handling implicit redirect {}", authorizationRequest);
 		List<AuthorizationScope> scopesToUse = ScopesParser.parseAuthorizationScopes(authorizationRequest.scope())
 				.orElseGet(() -> Arrays.asList(AuthorizationScope.values()));
@@ -39,7 +40,7 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 		if (authorizationRequest.scope() != null) {
 			parameters.put("scope", authorizationRequest.scope());
 		}
-		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters).toString();
+		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package api.security.training.authorization.handler;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -24,7 +25,7 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 
 	@SneakyThrows
 	@Override
-	public String computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
+	public URI computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
 		var clientAuthenticationCode = ClientAuthenticationCode.builder()
 				.code(uuidSupplier.get())
 				.clientId(authorizationRequest.clientId())
@@ -39,7 +40,7 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 		if (authorizationRequest.state() != null) {
 			parameters.put("state", authorizationRequest.state());
 		}
-		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters).toString();
+		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters);
 	}
 
 	@Override

@@ -1,7 +1,8 @@
 package api.security.training.authorization.utils;
 
+import java.net.URI;
 import java.util.Map;
 
 public interface URIParametersAppender {
-	String appendParameters(String originalURI, Map<String, String> parameters);
+	URI appendParameters(String originalURI, Map<String, String> parameters);
 }

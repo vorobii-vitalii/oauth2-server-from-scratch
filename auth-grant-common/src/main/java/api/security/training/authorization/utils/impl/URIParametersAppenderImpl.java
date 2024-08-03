@@ -1,5 +1,6 @@
 package api.security.training.authorization.utils.impl;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.apache.hc.core5.net.URIBuilder;
@@ -11,13 +12,10 @@ public class URIParametersAppenderImpl implements URIParametersAppender {
 
 	@SneakyThrows
 	@Override
-	public String appendParameters(String originalURI, Map<String, String> parameters) {
-		if (parameters.isEmpty()) {
-			return originalURI;
-		}
+	public URI appendParameters(String originalURI, Map<String, String> parameters) {
 		var uriBuilder = new URIBuilder(originalURI);
 		parameters.forEach(uriBuilder::addParameter);
-		return uriBuilder.build().toString();
+		return uriBuilder.build();
 	}
 
 }

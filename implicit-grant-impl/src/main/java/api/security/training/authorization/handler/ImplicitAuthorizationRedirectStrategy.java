@@ -39,7 +39,7 @@ public class ImplicitAuthorizationRedirectStrategy implements AuthorizationRedir
 		if (authorizationRequest.scope() != null) {
 			parameters.put("scope", authorizationRequest.scope());
 		}
-		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters);
+		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters).toString();
 	}
 
 	@Override

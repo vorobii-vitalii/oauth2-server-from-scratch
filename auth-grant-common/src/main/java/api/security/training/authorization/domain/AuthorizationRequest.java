@@ -1,5 +1,6 @@
 package api.security.training.authorization.domain;
 
+import java.net.URI;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -32,7 +33,7 @@ public record AuthorizationRequest(
 		String state,
 
 		@Column(REDIRECT_URL)
-		String redirectURL,
+		URI redirectURL,
 
 		@Version Integer version
 ) {

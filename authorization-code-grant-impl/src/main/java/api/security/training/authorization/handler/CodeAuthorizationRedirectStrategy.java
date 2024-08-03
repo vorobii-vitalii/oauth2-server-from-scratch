@@ -40,7 +40,7 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 		if (authorizationRequest.state() != null) {
 			parameters.put("state", authorizationRequest.state());
 		}
-		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL(), parameters);
+		return uriParametersAppender.appendParameters(authorizationRequest.redirectURL().toString(), parameters);
 	}
 
 	@Override

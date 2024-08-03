@@ -1,6 +1,8 @@
 package api.security.training.handlers;
 
+import java.net.URI;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +34,7 @@ public class AuthorizationHandler implements Handler {
 		var username = requestParameterService.get(ctx, RequestParameters.USERNAME);
 		var resourceOwnerAuthorizationRequest = ResourceOwnerAuthorizationRequest.builder()
 				.clientId(ctx.queryParam(CLIENT_ID))
-				.redirectURI(ctx.queryParam(REDIRECT_URI))
+				.redirectURI(Optional.ofNullable(ctx.queryParam(REDIRECT_URI)).map(URI::create).orElse(null))
 				.responseType(ctx.queryParam(RESPONSE_TYPE))
 				.scope(ctx.queryParam(SCOPE))
 				.state(ctx.queryParam(STATE))

@@ -50,8 +50,8 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 		}
 		var clientRegistration = foundClientRegistration.get();
 		// Compare redirect_uri with stored if present
-		var redirectURI = coalesce(request.redirectURI(), clientRegistration.redirectURL().toString());
-		if (!Objects.equals(redirectURI, clientRegistration.redirectURL().toString())) {
+		var redirectURI = coalesce(request.redirectURI(), clientRegistration.redirectURL());
+		if (!Objects.equals(redirectURI, clientRegistration.redirectURL())) {
 			log.warn("Redirect URI specified by client is wrong! {} != {}", redirectURI, clientRegistration.redirectURL());
 			return Result.err(new IllegalArgumentException("Wrong redirect_uri"));
 		}
@@ -113,14 +113,14 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 	 * @param state - state (nullable)
 	 * @return Redirection with error parameters
 	 */
-	private URI createErrorRedirectionURI(String originalURI, String state, String errorType, String errorDescription) {
+	private URI createErrorRedirectionURI(URI originalURI, String state, String errorType, String errorDescription) {
 		Map<String, String> parameters = new HashMap<>();
 		if (state != null) {
 			parameters.put("state", state);
 		}
 		parameters.put("error", errorType);
 		parameters.put("error_description", errorDescription);
-		return uriParametersAppender.appendParameters(originalURI, parameters);
+		return uriParametersAppender.appendParameters(originalURI.toString(), parameters);
 	}
 
 	@SafeVarargs

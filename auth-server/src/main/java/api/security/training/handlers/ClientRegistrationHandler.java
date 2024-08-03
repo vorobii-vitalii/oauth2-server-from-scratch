@@ -21,12 +21,12 @@ public class ClientRegistrationHandler implements Handler {
 	public void handle(@NotNull Context ctx) {
 		var registerClientRequest = ctx.bodyAsClass(RegisterClientRequest.class);
 		var registrationResult = clientRegistrationService.registerClient(registerClientRequest);
-		if (registrationResult.isLeft()) {
+		if (registrationResult.isOk()) {
 			ctx.status(HttpStatus.OK);
-			ctx.json(registrationResult.getLeft());
+			ctx.json(registrationResult.getResult());
 		} else {
 			ctx.status(HttpStatus.BAD_REQUEST);
-			ctx.json(List.of("Client with such name already exists"));
+			ctx.json(List.of(registrationResult.getException().getMessage()));
 		}
 	}
 }

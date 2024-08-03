@@ -21,12 +21,12 @@ public class UserRegistrationHandler implements Handler {
 	public void handle(@NotNull Context ctx) {
 		var registrationRequest = ctx.bodyAsClass(UserRegistrationRequest.class);
 		var result = userRegistrationService.performRegistration(registrationRequest);
-		if (result.isLeft()) {
-			log.info("User created!");
+		if (result.isOk()) {
+			log.info("User created! ID = {}", result.getResult());
 			ctx.status(HttpStatus.CREATED);
 		} else {
 			ctx.status(HttpStatus.BAD_REQUEST);
-			ctx.json(List.of("Such user already exists..."));
+			ctx.json(List.of(result.getException().getCause()));
 		}
 	}
 

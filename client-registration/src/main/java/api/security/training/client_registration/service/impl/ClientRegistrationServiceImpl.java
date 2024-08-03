@@ -3,13 +3,12 @@ package api.security.training.client_registration.service.impl;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import com.spencerwi.either.Either;
+import com.spencerwi.either.Result;
 
 import api.security.training.api.dto.RegisterClientRequest;
 import api.security.training.api.dto.RegisterClientResponse;
 import api.security.training.client_registration.dao.ClientRegistrationRepository;
 import api.security.training.client_registration.domain.ClientRegistration;
-import api.security.training.client_registration.dto.ClientAlreadyExistsError;
 import api.security.training.client_registration.secret.ClientSecretSupplier;
 import api.security.training.client_registration.service.ClientRegistrationService;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +22,12 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 	private final ClientSecretSupplier clientSecretSupplier;
 
 	@Override
-	public Either<RegisterClientResponse, ClientAlreadyExistsError> registerClient(RegisterClientRequest registerClientRequest) {
+	public Result<RegisterClientResponse> registerClient(RegisterClientRequest registerClientRequest) {
 		var clientName = registerClientRequest.name();
 		var alreadyExists = clientRegistrationRepository.existsByClientName(clientName);
 		if (alreadyExists) {
 			log.warn("Client by name {} already exists", clientName);
-			return Either.right(new ClientAlreadyExistsError());
+			return Result.err(new IllegalArgumentException("Client with such name already exists"));
 		} else {
 			var newClientId = uuidSupplier.get();
 			var clientSecret = clientSecretSupplier.createClientSecret();
@@ -43,7 +42,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 					.build();
 			clientRegistrationRepository.save(clientRegistration);
 			log.info("Successfully inserted new client {}", clientRegistration);
-			return Either.left(new RegisterClientResponse(newClientId, clientSecret.clientSecretPlainText()));
+			return Result.ok(new RegisterClientResponse(newClientId, clientSecret.clientSecretPlainText()));
 		}
 	}
 }

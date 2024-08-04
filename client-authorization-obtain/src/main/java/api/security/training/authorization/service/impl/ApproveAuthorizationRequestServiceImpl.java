@@ -35,7 +35,12 @@ public class ApproveAuthorizationRequestServiceImpl implements ApproveAuthorizat
 						.filter(v -> v.canHandleResponseType(authorizationRequest.responseType()))
 						.findFirst()
 						.orElseThrow();
-				return Result.attempt(() -> authorizationRedirectHandler.computeAuthorizationRedirectURL(authorizationRequest));
+				return Result.attempt(() -> authorizationRedirectHandler.computeAuthorizationRedirectURL(authorizationRequest))
+						.map(v -> {
+							log.info("Removing authorization request. Since its already approved :)");
+							authorizationRequestRepository.delete(authorizationRequest);
+							return v;
+						});
 			} else {
 				return Result.err(new IllegalArgumentException("You tried to approve request not requested by you!"));
 			}

@@ -29,6 +29,7 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 		var clientAuthenticationCode = ClientAuthenticationCode.builder()
 				.code(uuidSupplier.get())
 				.clientId(authorizationRequest.clientId())
+				// TODO: Remove
 				.authorizationRequestId(authorizationRequest.id())
 				.scope(authorizationRequest.scope())
 				.state(authorizationRequest.state())

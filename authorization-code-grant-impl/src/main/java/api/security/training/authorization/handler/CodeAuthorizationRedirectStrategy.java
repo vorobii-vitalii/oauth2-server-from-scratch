@@ -11,7 +11,6 @@ import api.security.training.authorization.domain.AuthorizationRequest;
 import api.security.training.authorization.domain.ClientAuthenticationCode;
 import api.security.training.authorization.utils.URIParametersAppender;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,14 +22,11 @@ public class CodeAuthorizationRedirectStrategy implements AuthorizationRedirectS
 	private final Supplier<UUID> uuidSupplier;
 	private final URIParametersAppender uriParametersAppender;
 
-	@SneakyThrows
 	@Override
 	public URI computeAuthorizationRedirectURL(AuthorizationRequest authorizationRequest) {
 		var clientAuthenticationCode = ClientAuthenticationCode.builder()
 				.code(uuidSupplier.get())
 				.clientId(authorizationRequest.clientId())
-				// TODO: Remove
-				.authorizationRequestId(authorizationRequest.id())
 				.scope(authorizationRequest.scope())
 				.state(authorizationRequest.state())
 				.username(authorizationRequest.username())

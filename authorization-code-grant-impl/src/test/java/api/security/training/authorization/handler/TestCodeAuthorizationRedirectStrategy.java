@@ -63,7 +63,6 @@ class TestCodeAuthorizationRedirectStrategy {
 		verify(clientAuthenticationCodeRepository).save(ClientAuthenticationCode.builder()
 				.code(GENERATED_UUID)
 				.clientId(CLIENT_ID)
-				.authorizationRequestId(AUTH_REQUEST_ID)
 				.scope(AuthorizationScope.READ_FIRST_NAME.getCode())
 				.state(STATE)
 				.username(USERNAME)
@@ -86,7 +85,6 @@ class TestCodeAuthorizationRedirectStrategy {
 		verify(clientAuthenticationCodeRepository).save(ClientAuthenticationCode.builder()
 				.code(GENERATED_UUID)
 				.clientId(CLIENT_ID)
-				.authorizationRequestId(AUTH_REQUEST_ID)
 				.scope(AuthorizationScope.READ_FIRST_NAME.getCode())
 				.username(USERNAME)
 				.build());

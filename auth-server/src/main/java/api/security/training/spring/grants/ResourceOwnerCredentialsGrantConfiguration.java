@@ -10,7 +10,7 @@ import api.security.training.authorization.TokenRequestHandler;
 import api.security.training.authorization.dao.ClientRefreshTokenRepository;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.users.login.service.UserCredentialsChecker;
-import pi.security.training.ResourceOwnerCredentialsTokenRequestHandler;
+import api.security.training.ResourceOwnerCredentialsTokenRequestHandler;
 
 @Configuration
 public class ResourceOwnerCredentialsGrantConfiguration {

@@ -15,8 +15,6 @@ public record ClientAuthenticationCode(
 		@Id
 		@Column("authentication_code")
 		UUID code,
-		@Column("authorization_request")
-		UUID authorizationRequestId,
 		@Column("client_id")
 		UUID clientId,
 		@Column("scope")

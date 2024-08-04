@@ -1,4 +1,4 @@
-package pi.security.training;
+package api.security.training;
 
 import java.time.Clock;
 import java.time.Instant;

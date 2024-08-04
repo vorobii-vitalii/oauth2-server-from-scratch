@@ -107,3 +107,9 @@ create table client_refresh_tokens
 );
 --rollback DROP TABLE client_refresh_tokens;
 
+--changeset Vitalii:9 context:auth-server
+--comment: Remove client_authentication_codes column from client_authentication_codes
+ALTER table client_authentication_codes DROP COLUMN authorization_request;
+
+
+

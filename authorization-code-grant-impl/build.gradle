@@ -27,6 +27,8 @@ dependencies {
 
     implementation 'com.spencerwi:Either.java:2.9.0'
 
+    testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+
     implementation project(':auth-server-api')
     implementation project(':auth-grant-common')
     implementation project(':access-token-common')

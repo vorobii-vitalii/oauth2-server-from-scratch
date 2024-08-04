@@ -15,8 +15,7 @@ public enum AuthorizationScope {
 	READ_LAST_NAME("read_last_name", "Read last name"),
 	READ_PHONE_NUMBER("read_phone_number", "Read phone number"),
 	CHANGE_FIRST_NAME("change_first_name", "Change first name"),
-	CHANGE_LAST_NAME("change_last_name", "Change last name"),
-	APPROVE_AUTHORIZATION_REQUEST("approve_auth_request", "Approve authorization request");
+	CHANGE_LAST_NAME("change_last_name", "Change last name");
 
 	private static final Map<String, AuthorizationScope> SCOPE_MAP = Arrays.stream(values())
 			.collect(Collectors.toMap(AuthorizationScope::getCode, v -> v));

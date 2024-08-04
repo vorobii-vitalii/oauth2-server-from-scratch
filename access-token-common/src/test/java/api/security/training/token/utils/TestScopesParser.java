@@ -26,7 +26,7 @@ class TestScopesParser {
 						" read_first_name    read_phone_number  ", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_PHONE_NUMBER)
 				),
 				Arguments.of(
-						"approve_auth_request", List.of(AuthorizationScope.APPROVE_AUTHORIZATION_REQUEST)
+						"change_last_name", List.of(AuthorizationScope.CHANGE_LAST_NAME)
 				)
 		);
 	}

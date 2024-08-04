@@ -53,10 +53,9 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 			log.warn("Redirect URI specified by client is wrong! {} != {}", redirectURI, clientRegistration.redirectURL());
 			return Result.err(new IllegalArgumentException("Wrong redirect_uri"));
 		}
-		var state = request.state();
 		if (Objects.isNull(request.responseType())) {
 			log.warn("Response type not specified");
-			return Result.ok(Either.right(createErrorRedirectionURI(redirectURI, state,
+			return Result.ok(Either.right(createErrorRedirectionURI(redirectURI, request.state(),
 					"invalid_request",
 					"Response type not specified"
 			)));
@@ -64,7 +63,7 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 		// Check if response type is supported by any strategy
 		if (isResponseTypeNotSupported(request.responseType())) {
 			log.warn("Response type {} not supported", request.responseType());
-			return Result.ok(Either.right(createErrorRedirectionURI(redirectURI, state,
+			return Result.ok(Either.right(createErrorRedirectionURI(redirectURI, request.state(),
 					"unsupported_response_type",
 					"Response type not supported"
 			)));
@@ -75,21 +74,17 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 		if (scopeList.isErr()) {
 			log.warn("Failed to parse scopes");
 			return Result.ok(Either.right(
-					createErrorRedirectionURI(redirectURI, state, "invalid_scope", "Invalid scopes")));
+					createErrorRedirectionURI(redirectURI, request.state(), "invalid_scope", "Invalid scopes")));
 		}
-		var authorizationRequestSaveResult = Result.attempt(() -> authorizationRequestRepository.save(AuthorizationRequest.builder()
-				.id(uuidSupplier.get())
-				.clientId(clientId)
-				.scope(request.scope())
-				.state(state)
-				.responseType(request.responseType())
-				.username(request.username())
-				.redirectURL(redirectURI)
-				.build()));
+		var authorizationRequestSaveResult = Result.attempt(() -> {
+			var authorizationRequest = createAuthorizationRequest(request, clientId, redirectURI);
+			authorizationRequestRepository.save(authorizationRequest);
+			return authorizationRequest;
+		});
 		if (authorizationRequestSaveResult.isErr()) {
 			log.warn("Error occurred on save of auth request to DB", authorizationRequestSaveResult.getException());
 			return Result.ok(Either.right(
-					createErrorRedirectionURI(redirectURI, state, "server_error", "Server error")));
+					createErrorRedirectionURI(redirectURI, request.state(), "server_error", "Server error")));
 		}
 		log.info("Successfully inserted new authorization request {}", authorizationRequestSaveResult.getResult());
 		return Result.ok(Either.left(
@@ -100,6 +95,18 @@ public class ObtainResourceOwnerConsentServiceImpl implements ObtainResourceOwne
 						.authorizationRequestId(authorizationRequestSaveResult.getResult().id().toString())
 						.build()
 		));
+	}
+
+	private AuthorizationRequest createAuthorizationRequest(ResourceOwnerAuthorizationRequest request, UUID clientId, URI redirectURI) {
+		return AuthorizationRequest.builder()
+				.id(uuidSupplier.get())
+				.clientId(clientId)
+				.scope(request.scope())
+				.state(request.state())
+				.responseType(request.responseType())
+				.username(request.username())
+				.redirectURL(redirectURI)
+				.build();
 	}
 
 	private boolean isResponseTypeNotSupported(String responseType) {

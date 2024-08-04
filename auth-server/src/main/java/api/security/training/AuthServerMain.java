@@ -36,6 +36,7 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
 import io.javalin.rendering.template.JavalinJte;
 import jakarta.validation.Validation;
 import lombok.extern.slf4j.Slf4j;
@@ -86,6 +87,10 @@ public class AuthServerMain {
 		app.exception(AuthenticationRequiredException.class, (exception, ctx) -> ctx.render("login.jte", Map.of(
 				"loginPageParams", LoginPageParams.builder().redirectTo(exception.getRedirectTo()).build()
 		)));
+		app.exception(IllegalArgumentException.class, (err, ctx) -> {
+			ctx.status(HttpStatus.BAD_REQUEST);
+			ctx.json(Map.of("error", err.getMessage()));
+		});
 
 		app.start(7000);
 

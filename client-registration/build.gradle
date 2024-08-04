@@ -24,7 +24,6 @@ dependencies {
     implementation 'com.spencerwi:Either.java:2.9.0'
 
     implementation project(':auth-server-api')
-    implementation project(':auth-server-commons')
 }
 
 test {

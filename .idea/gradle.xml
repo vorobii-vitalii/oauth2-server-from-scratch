@@ -12,7 +12,6 @@
             <option value="$PROJECT_DIR$/auth-grant-common" />
             <option value="$PROJECT_DIR$/auth-server" />
             <option value="$PROJECT_DIR$/auth-server-api" />
-            <option value="$PROJECT_DIR$/auth-server-commons" />
             <option value="$PROJECT_DIR$/authorization-code-grant-impl" />
             <option value="$PROJECT_DIR$/client-authorization-obtain" />
             <option value="$PROJECT_DIR$/client-registration" />

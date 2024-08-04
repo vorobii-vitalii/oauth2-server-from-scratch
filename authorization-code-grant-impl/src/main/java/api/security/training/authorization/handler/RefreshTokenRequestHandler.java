@@ -1,8 +1,8 @@
 package api.security.training.authorization.handler;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.spencerwi.either.Result;
@@ -44,12 +44,16 @@ public class RefreshTokenRequestHandler implements TokenRequestHandler {
 			return Result.err(new IllegalArgumentException("Refresh token not found"));
 		}
 		var clientRefreshToken = foundClientRefreshToken.get();
+		if (!Objects.equals(clientRefreshToken.clientId(), UUID.fromString(clientId))) {
+			log.warn("Refresh token is not associated with this client...");
+			return Result.err(new IllegalArgumentException("Refresh token not for you"));
+		}
 		var refreshTokenScopes = parseScopes(clientRefreshToken.scope());
 		var requestedScopes = tokenRequest.scope() == null
 				? refreshTokenScopes
-				: new HashSet<>(ScopesParser.parseAuthorizationScopes(tokenRequest.scope()).getResult());
+				: ScopesParser.parseAuthorizationScopes(tokenRequest.scope()).getResult();
 		if (checkScopeNotWider(refreshTokenScopes, requestedScopes)) {
-			var newAccessToken = accessTokenCreator.createToken(clientRefreshToken.username(), new ArrayList<>(requestedScopes));
+			var newAccessToken = accessTokenCreator.createToken(clientRefreshToken.username(), requestedScopes);
 			return Result.ok(TokenResponse.builder().accessToken(newAccessToken).build());
 		} else {
 			log.warn("Attempt to request token with higher scope {} > {}", tokenRequest.scope(), clientRefreshToken.scope());
@@ -57,7 +61,7 @@ public class RefreshTokenRequestHandler implements TokenRequestHandler {
 		}
 	}
 
-	private boolean checkScopeNotWider(Set<AuthorizationScope> refreshTokenScopes, Set<AuthorizationScope> requestedScopes) {
+	private boolean checkScopeNotWider(Collection<AuthorizationScope> refreshTokenScopes, Collection<AuthorizationScope> requestedScopes) {
 		for (var requestedScope : requestedScopes) {
 			if (!refreshTokenScopes.contains(requestedScope)) {
 				log.warn("Scope {} not present in {}", requestedScope, refreshTokenScopes);
@@ -67,8 +71,8 @@ public class RefreshTokenRequestHandler implements TokenRequestHandler {
 		return true;
 	}
 
-	private Set<AuthorizationScope> parseScopes(String scopes) {
-		return scopes == null ? Set.of(AuthorizationScope.values()) : new HashSet<>(ScopesParser.parseAuthorizationScopes(scopes).getResult());
+	private List<AuthorizationScope> parseScopes(String scopes) {
+		return scopes == null ? List.of(AuthorizationScope.values()) : ScopesParser.parseAuthorizationScopes(scopes).getResult();
 	}
 
 }

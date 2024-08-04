@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.request.RequestParameterService;
-import api.security.training.request.RequestParameters;
+import api.security.training.request.dto.RequestParameters;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import lombok.RequiredArgsConstructor;

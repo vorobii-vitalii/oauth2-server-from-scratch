@@ -1,5 +1,6 @@
 package api.security.training.request;
 
+import api.security.training.request.dto.RequestParameter;
 import io.javalin.http.Context;
 
 public interface RequestParameterService {

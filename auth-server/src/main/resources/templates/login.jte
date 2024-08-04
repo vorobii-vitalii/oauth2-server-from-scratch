@@ -1,5 +1,5 @@
 @import java.util.stream.Collectors
-@import api.security.training.LoginPageParams
+@import api.security.training.dto.LoginPageParams
 
 @param LoginPageParams loginPageParams
 

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import api.security.training.request.RequestTokenExtractor;
 import api.security.training.request.RequestParameterService;
-import api.security.training.request.RequestParameters;
+import api.security.training.request.dto.RequestParameters;
 import api.security.training.token.AccessTokenInfoReader;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

@@ -1,6 +1,6 @@
 package api.security.training.request.impl;
 
-import api.security.training.request.RequestParameter;
+import api.security.training.request.dto.RequestParameter;
 import api.security.training.request.RequestParameterService;
 import io.javalin.http.Context;
 

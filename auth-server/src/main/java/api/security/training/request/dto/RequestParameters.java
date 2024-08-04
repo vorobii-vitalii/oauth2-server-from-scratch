@@ -1,4 +1,4 @@
-package api.security.training.request;
+package api.security.training.request.dto;
 
 import lombok.experimental.UtilityClass;
 

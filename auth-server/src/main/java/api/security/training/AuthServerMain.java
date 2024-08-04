@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 
 import api.security.training.api.dto.RegisterClientRequest;
 import api.security.training.authorization.service.ApproveAuthorizationRequestService;
@@ -14,6 +13,7 @@ import api.security.training.authorization.service.ObtainResourceOwnerConsentSer
 import api.security.training.authorization.service.RejectAuthorizationRequestService;
 import api.security.training.authorization.service.TokenRequestService;
 import api.security.training.client_registration.service.ClientRegistrationService;
+import api.security.training.dto.LoginPageParams;
 import api.security.training.exception.AuthenticationRequiredException;
 import api.security.training.filters.UserAuthenticationFilter;
 import api.security.training.filters.UserInfoFilter;

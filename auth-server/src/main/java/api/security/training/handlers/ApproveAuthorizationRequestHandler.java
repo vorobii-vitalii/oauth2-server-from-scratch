@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import api.security.training.authorization.dto.ApproveAuthorizationRequest;
 import api.security.training.authorization.service.ApproveAuthorizationRequestService;
 import api.security.training.request.RequestParameterService;
-import api.security.training.request.RequestParameters;
+import api.security.training.request.dto.RequestParameters;
 import api.security.training.utils.ResultProcessor;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

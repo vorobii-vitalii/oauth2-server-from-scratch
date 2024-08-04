@@ -27,6 +27,7 @@ dependencies {
     implementation project(':access-token-common')
 }
 
-test {
+tasks.named('test') {
+    testLogging.showStandardStreams = true
     useJUnitPlatform()
 }

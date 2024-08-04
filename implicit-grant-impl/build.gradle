@@ -29,6 +29,7 @@ dependencies {
     implementation project(':users-authentication')
 }
 
-test {
+tasks.named('test') {
+    testLogging.showStandardStreams = true
     useJUnitPlatform()
 }

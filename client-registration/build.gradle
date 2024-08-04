@@ -26,6 +26,7 @@ dependencies {
     implementation project(':auth-server-api')
 }
 
-test {
+tasks.named('test') {
+    testLogging.showStandardStreams = true
     useJUnitPlatform()
 }

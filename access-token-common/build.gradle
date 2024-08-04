@@ -25,6 +25,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 }
 
-test {
+tasks.named('test') {
+    testLogging.showStandardStreams = true
     useJUnitPlatform()
 }

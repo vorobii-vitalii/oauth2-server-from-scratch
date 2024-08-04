@@ -65,6 +65,7 @@ dependencies {
     implementation project(':authorization-code-grant-impl')
 }
 
-test {
+tasks.named('test') {
+    testLogging.showStandardStreams = true
     useJUnitPlatform()
 }

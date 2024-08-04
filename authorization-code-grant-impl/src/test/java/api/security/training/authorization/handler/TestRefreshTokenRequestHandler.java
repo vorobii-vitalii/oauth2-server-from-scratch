@@ -89,12 +89,12 @@ class TestRefreshTokenRequestHandler {
 		var tokenRequest = TokenRequest.builder()
 				.grantType(REFRESH_TOKEN)
 				.refreshToken(REFRESH_TOKEN_ID.toString())
-				.scope(AuthorizationScope.READ_EMAIL.getCode() + " " + AuthorizationScope.READ_FIRST_NAME.getCode())
+				.scope(AuthorizationScope.READ_PHONE_NUMBER.getCode() + " " + AuthorizationScope.READ_FIRST_NAME.getCode())
 				.build();
 		when(clientRefreshTokenRepository.findById(REFRESH_TOKEN_ID))
 				.thenReturn(Optional.of(ClientRefreshToken.builder()
 						.clientId(CLIENT_ID)
-						.scope(AuthorizationScope.READ_EMAIL.getCode())
+						.scope(AuthorizationScope.READ_PHONE_NUMBER.getCode())
 						.build()));
 		var tokenResponseResult = refreshTokenRequestHandler.handleTokenRequest(tokenRequest, CLIENT_ID.toString());
 		assertThat(tokenResponseResult.isErr()).isTrue();
@@ -105,15 +105,15 @@ class TestRefreshTokenRequestHandler {
 		var tokenRequest = TokenRequest.builder()
 				.grantType(REFRESH_TOKEN)
 				.refreshToken(REFRESH_TOKEN_ID.toString())
-				.scope(AuthorizationScope.READ_EMAIL.getCode())
+				.scope(AuthorizationScope.READ_PHONE_NUMBER.getCode())
 				.build();
 		when(clientRefreshTokenRepository.findById(REFRESH_TOKEN_ID))
 				.thenReturn(Optional.of(ClientRefreshToken.builder()
 						.clientId(CLIENT_ID)
 						.username(USERNAME)
-						.scope(AuthorizationScope.READ_EMAIL.getCode() + " " + AuthorizationScope.READ_FIRST_NAME.getCode())
+						.scope(AuthorizationScope.READ_PHONE_NUMBER.getCode() + " " + AuthorizationScope.READ_FIRST_NAME.getCode())
 						.build()));
-		when(accessTokenCreator.createToken(USERNAME, List.of(AuthorizationScope.READ_EMAIL)))
+		when(accessTokenCreator.createToken(USERNAME, List.of(AuthorizationScope.READ_PHONE_NUMBER)))
 				.thenReturn(ACCESS_TOKEN);
 		var tokenResponseResult = refreshTokenRequestHandler.handleTokenRequest(tokenRequest, CLIENT_ID.toString());
 		assertThat(tokenResponseResult.getResult()).isEqualTo(TokenResponse.builder().accessToken(ACCESS_TOKEN).build());
@@ -128,10 +128,10 @@ class TestRefreshTokenRequestHandler {
 		when(clientRefreshTokenRepository.findById(REFRESH_TOKEN_ID))
 				.thenReturn(Optional.of(ClientRefreshToken.builder()
 						.clientId(CLIENT_ID)
-						.scope(AuthorizationScope.READ_EMAIL.getCode())
+						.scope(AuthorizationScope.READ_PHONE_NUMBER.getCode())
 						.username(USERNAME)
 						.build()));
-		when(accessTokenCreator.createToken(USERNAME, List.of(AuthorizationScope.READ_EMAIL)))
+		when(accessTokenCreator.createToken(USERNAME, List.of(AuthorizationScope.READ_PHONE_NUMBER)))
 				.thenReturn(ACCESS_TOKEN);
 		var tokenResponseResult = refreshTokenRequestHandler.handleTokenRequest(tokenRequest, CLIENT_ID.toString());
 		assertThat(tokenResponseResult.getResult()).isEqualTo(TokenResponse.builder().accessToken(ACCESS_TOKEN).build());

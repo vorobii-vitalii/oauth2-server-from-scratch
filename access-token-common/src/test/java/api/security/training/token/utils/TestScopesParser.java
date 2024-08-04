@@ -17,13 +17,13 @@ class TestScopesParser {
 	public static Stream<Arguments> validScopesArguments() {
 		return Stream.of(
 				Arguments.of(
-						"read_first_name read_email", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_EMAIL)
+						"read_first_name read_phone_number", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_PHONE_NUMBER)
 				),
 				Arguments.of(
-						"read_first_name    read_email", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_EMAIL)
+						"read_first_name    read_phone_number", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_PHONE_NUMBER)
 				),
 				Arguments.of(
-						" read_first_name    read_email  ", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_EMAIL)
+						" read_first_name    read_phone_number  ", List.of(AuthorizationScope.READ_FIRST_NAME, AuthorizationScope.READ_PHONE_NUMBER)
 				),
 				Arguments.of(
 						"approve_auth_request", List.of(AuthorizationScope.APPROVE_AUTHORIZATION_REQUEST)

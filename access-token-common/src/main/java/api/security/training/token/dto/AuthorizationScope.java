@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public enum AuthorizationScope {
 	READ_FIRST_NAME("read_first_name", "Read first name"),
 	READ_LAST_NAME("read_last_name", "Read last name"),
-	READ_EMAIL("read_email", "Read email address"),
+	READ_PHONE_NUMBER("read_phone_number", "Read phone number"),
 	CHANGE_FIRST_NAME("change_first_name", "Change first name"),
 	CHANGE_LAST_NAME("change_last_name", "Change last name"),
 	APPROVE_AUTHORIZATION_REQUEST("approve_auth_request", "Approve authorization request");

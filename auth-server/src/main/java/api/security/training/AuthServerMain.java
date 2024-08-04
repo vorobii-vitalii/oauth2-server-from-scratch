@@ -23,6 +23,7 @@ import api.security.training.handlers.ClientRegistrationHandler;
 import api.security.training.handlers.LoginHandler;
 import api.security.training.handlers.RejectAuthorizationRequestHandler;
 import api.security.training.handlers.TokenHandler;
+import api.security.training.handlers.UserInfoProvider;
 import api.security.training.handlers.UserRegistrationHandler;
 import api.security.training.handlers.ValidatingBodyHandler;
 import api.security.training.request.RequestParameterService;
@@ -30,6 +31,7 @@ import api.security.training.request.impl.CookieRequestTokenExtractor;
 import api.security.training.spring.RootConfig;
 import api.security.training.token.AccessTokenCreator;
 import api.security.training.token.AccessTokenInfoReader;
+import api.security.training.users.dao.UserRepository;
 import api.security.training.users.login.service.UserCredentialsChecker;
 import api.security.training.users.registration.service.UserRegistrationService;
 import api.security.training.validation.impl.SimpleErrorsListValidationErrorResponseFactory;
@@ -84,6 +86,10 @@ public class AuthServerMain {
 				new ClientRegistrationHandler(applicationContext.getBean(ClientRegistrationService.class)),
 				RegisterClientRequest.class
 		));
+
+		app.get("/info/{param}", new UserInfoProvider(
+				applicationContext.getBean(UserRepository.class),
+				applicationContext.getBean(AccessTokenInfoReader.class)));
 
 		app.exception(AuthenticationRequiredException.class, (exception, ctx) -> ctx.render("login.jte", Map.of(
 				"loginPageParams", LoginPageParams.builder().redirectTo(exception.getRedirectTo()).build()

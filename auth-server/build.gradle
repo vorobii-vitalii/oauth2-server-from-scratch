@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id "org.openapi.generator" version "7.7.0"
+}
+
+group = 'api.security.training'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://www.webjars.org"
+    }
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Javalin
+    implementation "io.javalin:javalin-bundle:6.1.3"
+
+    // Logging
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
+
+    implementation 'org.springframework.data:spring-data-jdbc:3.3.2'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'org.postgresql:postgresql:42.7.3'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    // Validation API
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+
+    // Validation Impl
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+
+    implementation 'jakarta.el:jakarta.el-api:6.0.1'
+    implementation 'org.glassfish.expressly:expressly:5.0.0'
+
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    implementation 'gg.jte:jte:2.2.1'
+    implementation 'io.javalin:javalin-rendering:6.1.3'
+
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.4-beta1'
+    implementation 'com.spencerwi:Either.java:2.9.0'
+
+    implementation project(':auth-server-api')
+    implementation project(':access-token-common')
+    implementation project(':client-registration')
+    implementation project(':users-authentication')
+    implementation project(':auth-grant-common')
+    implementation project(':client-authorization-obtain')
+
+    // Grants implementations
+    implementation project(':resource-owner-credentials-grant-impl')
+    implementation project(':implicit-grant-impl')
+    implementation project(':authorization-code-grant-impl')
+}
+
+tasks.named('test') {
+    testLogging.showStandardStreams = true
+    useJUnitPlatform()
+}

@@ -1,0 +1,12 @@
+rootProject.name = 'api-security-training'
+include 'auth-server-api'
+include 'auth-server'
+include 'access-token-common'
+include 'client-registration'
+include 'users-authentication'
+include 'auth-grant-common'
+include 'resource-owner-credentials-grant-impl'
+include 'implicit-grant-impl'
+include 'authorization-code-grant-impl'
+include 'client-authorization-obtain'
+

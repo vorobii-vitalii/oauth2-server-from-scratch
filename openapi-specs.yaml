@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: OAuth2 server
+  description: Specification of OAuth2 server
+  version: 1.0.0
+servers:
+  - url: 'http'
+components:
+  schemas:
+
+    RegisterClientRequest:
+      type: object
+      properties:
+        client_type:
+          type: string
+          description: Client type
+          enum:
+            - confidential
+            - public
+        redirect_url:
+          type: string
+          description: Redirect URL
+        name:
+          type: string
+          description: Client name
+        description:
+          type: string
+          description: Client description
+
+    RegisterClientResponse:
+      description: Client registered response
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: Client ID
+        secret_id:
+          type: string
+          description: Secret ID
+
+    ClientRegistrationErrorResponse:
+      description: Client creation error
+      type: array
+      format: Array of errors in text format
+      items:
+        type: string
+
+paths:
+  /clients:
+    post:
+      operationId: registerNewClient
+      description: Register new client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterClientRequest"
+      responses:
+        200:
+          description: New client successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterClientResponse"
+        400:
+          description: Bad request when registering new client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientRegistrationErrorResponse"
